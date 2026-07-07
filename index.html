@@ -1,0 +1,2087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RISAC - Science and Astronomy Club</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght=400;600;800;900&family=Plus+Jakarta+Sans:wght=300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #030712;
+            color: #f3f4f6;
+            overflow-x: hidden;
+        }
+        .orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+        .starfield {
+            background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px),
+                              radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px),
+                              radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 40px);
+            background-size: 550px 550px, 350px 350px, 250px 250px;
+            background-position: 0 0, 40px 60px, 130px 270px;
+            animation: starMovement 100s linear infinite;
+        }
+        @keyframes starMovement {
+            from { background-position: 0 0, 40px 60px, 130px 270px; }
+            to { background-position: 550px 1100px, 390px 760px, 380px 1270px; }
+        }
+        .space-card {
+            background: rgba(11, 17, 30, 0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+        }
+        .glow-text {
+            text-shadow: 0 0 10px rgba(99, 102, 241, 0.5), 0 0 20px rgba(99, 102, 241, 0.3);
+        }
+        /* Hide scrollbars but keep functionality */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="starfield min-h-screen flex flex-col justify-between">
+
+    <!-- TOP NAVIGATION BAR -->
+    <nav class="sticky top-0 z-40 bg-gray-950/80 backdrop-blur-md border-b border-gray-800/80 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Club Logo and Title -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('home')">
+                    <div class="bg-gradient-to-tr from-indigo-500 to-purple-600 p-2 rounded-xl text-white shadow-lg shadow-indigo-500/20">
+                        <i class="fa-solid fa-user-astronaut text-xl animate-pulse"></i>
+                    </div>
+                    <div>
+                        <span class="orbitron text-xl font-extrabold tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400">RISAC</span>
+                        <p class="text-[10px] uppercase tracking-[0.25em] text-gray-400 font-semibold leading-none">Science & Astronomy</p>
+                    </div>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden lg:flex space-x-1 items-center">
+                    <button onclick="switchTab('home')" id="nav-home" class="px-3.5 py-2 rounded-lg text-sm font-medium transition-all text-indigo-400 bg-indigo-950/40">Home</button>
+                    <button onclick="switchTab('leaderboard')" id="nav-leaderboard" class="px-3.5 py-2 rounded-lg text-sm font-medium transition-all text-gray-300 hover:text-white hover:bg-gray-800/40">Leaderboard</button>
+                    <button onclick="switchTab('events')" id="nav-events" class="px-3.5 py-2 rounded-lg text-sm font-medium transition-all text-gray-300 hover:text-white hover:bg-gray-800/40">Events</button>
+                    <button onclick="switchTab('quizzes')" id="nav-quizzes" class="px-3.5 py-2 rounded-lg text-sm font-medium transition-all text-gray-300 hover:text-white hover:bg-gray-800/40">Quizzes</button>
+                    <button onclick="switchTab('achievements')" id="nav-achievements" class="px-3.5 py-2 rounded-lg text-sm font-medium transition-all text-gray-300 hover:text-white hover:bg-gray-800/40">Achievements</button>
+                    <button onclick="switchTab('exco')" id="nav-exco" class="px-3.5 py-2 rounded-lg text-sm font-medium transition-all text-gray-300 hover:text-white hover:bg-gray-800/40">EXCO</button>
+                </div>
+
+                <!-- Admin Action and Mobile menu toggle -->
+                <div class="flex items-center space-x-3">
+                    <button id="admin-badge" onclick="openAdminModal()" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-gray-800 text-gray-300 hover:bg-gray-700 transition duration-150">
+                        <i class="fa-solid fa-lock-open text-[10px]"></i>
+                        <span id="admin-status-text">Admin Access</span>
+                    </button>
+                    <button onclick="toggleMobileMenu()" class="lg:hidden text-gray-400 hover:text-white p-2">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden lg:hidden px-4 pt-2 pb-4 bg-gray-950 border-b border-gray-800 space-y-2">
+            <button onclick="switchTab('home')" class="block w-full text-left px-4 py-2 rounded-lg text-sm text-gray-300 hover:bg-gray-800">Home</button>
+            <button onclick="switchTab('leaderboard')" class="block w-full text-left px-4 py-2 rounded-lg text-sm text-gray-300 hover:bg-gray-800">Leaderboard</button>
+            <button onclick="switchTab('events')" class="block w-full text-left px-4 py-2 rounded-lg text-sm text-gray-300 hover:bg-gray-800">Events</button>
+            <button onclick="switchTab('quizzes')" class="block w-full text-left px-4 py-2 rounded-lg text-sm text-gray-300 hover:bg-gray-800">Quizzes</button>
+            <button onclick="switchTab('achievements')" class="block w-full text-left px-4 py-2 rounded-lg text-sm text-gray-300 hover:bg-gray-800">Achievements</button>
+            <button onclick="switchTab('exco')" class="block w-full text-left px-4 py-2 rounded-lg text-sm text-gray-300 hover:bg-gray-800">EXCO</button>
+        </div>
+    </nav>
+
+    <!-- MAIN BODY CONTAINER -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
+
+        <!-- Temporary Admin Setup Helper inside main viewport (Shows only if logged in and empty) -->
+        <div id="admin-setup-tip" class="hidden space-card p-4 rounded-xl border border-indigo-500/20 bg-indigo-950/25 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center space-x-3 text-sm">
+                <i class="fa-solid fa-circle-info text-indigo-400 text-lg"></i>
+                <div>
+                    <span class="font-bold text-white">Prinstine State Detected</span>
+                    <p class="text-xs text-gray-400">Would you like to auto-populate some test entries to inspect the components and design?</p>
+                </div>
+            </div>
+            <button onclick="loadSampleEntries()" class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-xs font-bold text-white transition shadow-lg shadow-indigo-600/20">Load Safe Sample Data</button>
+        </div>
+        
+        <!-- ================= PAGE: HOME ================= -->
+        <section id="page-home" class="space-y-12">
+            <!-- Hero banner -->
+            <div class="space-card rounded-3xl p-8 md:p-16 text-center relative overflow-hidden border border-indigo-500/20 shadow-indigo-500/5">
+                <div class="absolute -right-24 -top-24 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -left-24 -bottom-24 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
+                
+                <h1 class="orbitron text-4xl md:text-6xl font-black tracking-tight mb-4 leading-tight">
+                    EXPLORE THE <br class="sm:hidden">
+                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 glow-text">COSMOS WITH US</span>
+                </h1>
+                <p class="text-gray-400 max-w-2xl mx-auto text-base md:text-lg mb-8 leading-relaxed">
+                    Welcome to the Science & Astronomy Club. We are space enthusiasts, science builders, and starry-eyed observers exploring the frontiers of technology and astronomy.
+                </p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <button onclick="switchTab('events')" class="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-semibold shadow-lg shadow-indigo-500/25 transition duration-150">
+                        View Upcoming Events <i class="fa-solid fa-arrow-right ml-2 text-xs"></i>
+                    </button>
+                    <button onclick="switchTab('quizzes')" class="px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 font-semibold shadow-lg shadow-purple-500/25 transition duration-150">
+                        Take Quizzes <i class="fa-solid fa-feather ml-2 text-xs"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick stats / Highlights -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Leaderboard Teaser -->
+                <div class="space-card rounded-2xl p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="p-3 bg-yellow-500/10 text-yellow-400 rounded-xl"><i class="fa-solid fa-ranking-star text-xl"></i></span>
+                            <span class="text-[10px] font-bold orbitron uppercase tracking-widest text-indigo-400">Leaderboard</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Member Rankings</h3>
+                        <p class="text-gray-400 text-sm mb-4">Earn points through session attendances, stargazing events, and Astro quizzes.</p>
+                    </div>
+                    <button onclick="switchTab('leaderboard')" class="text-indigo-400 text-sm font-semibold hover:text-indigo-300 flex items-center">
+                        See top students <i class="fa-solid fa-chevron-right ml-1 text-xs"></i>
+                    </button>
+                </div>
+
+                <!-- Events Teaser -->
+                <div class="space-card rounded-2xl p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="p-3 bg-purple-500/10 text-purple-400 rounded-xl"><i class="fa-solid fa-calendar-days text-xl"></i></span>
+                            <span class="text-[10px] font-bold orbitron uppercase tracking-widest text-indigo-400">Next Sessions</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Upcoming Activities</h3>
+                        <p class="text-gray-400 text-sm mb-4">Access details and directly complete event signups and quiz forms on our platform.</p>
+                    </div>
+                    <button onclick="switchTab('events')" class="text-indigo-400 text-sm font-semibold hover:text-indigo-300 flex items-center">
+                        Register for event <i class="fa-solid fa-chevron-right ml-1 text-xs"></i>
+                    </button>
+                </div>
+
+                <!-- Achievements Teaser -->
+                <div class="space-card rounded-2xl p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="p-3 bg-pink-500/10 text-pink-400 rounded-xl"><i class="fa-solid fa-award text-xl"></i></span>
+                            <span class="text-[10px] font-bold orbitron uppercase tracking-widest text-indigo-400">History</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Club Laurels</h3>
+                        <p class="text-gray-400 text-sm mb-4">Proudly tracking our milestones, competition wins, and national science accomplishments.</p>
+                    </div>
+                    <button onclick="switchTab('achievements')" class="text-indigo-400 text-sm font-semibold hover:text-indigo-300 flex items-center">
+                        View awards archive <i class="fa-solid fa-chevron-right ml-1 text-xs"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE: LEADERBOARD ================= -->
+        <section id="page-leaderboard" class="hidden space-y-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="orbitron text-3xl font-black tracking-wider text-white">Leaderboard Points</h2>
+                    <p class="text-gray-400 text-sm mt-1">Accumulate points by actively participating in quizzes and club activities.</p>
+                </div>
+                <button id="admin-add-member-btn" onclick="openAddMemberModal()" class="hidden bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center space-x-2 shadow-lg shadow-indigo-600/20 transition">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>Add New Member</span>
+                </button>
+            </div>
+
+            <!-- Top 3 Podium Displays -->
+            <div id="podium-container" class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4"></div>
+
+            <!-- Table for remaining leaderboard members -->
+            <div class="space-card rounded-2xl overflow-hidden mt-6">
+                <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-950/40">
+                    <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Club Rankings</span>
+                    <span id="member-count" class="text-xs font-semibold px-2.5 py-0.5 bg-gray-800 text-indigo-400 rounded-full">0 members</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="text-gray-500 text-xs uppercase tracking-wider border-b border-gray-850">
+                                <th class="p-4 pl-6">Rank</th>
+                                <th class="p-4">Name</th>
+                                <th class="p-4">Role</th>
+                                <th class="p-4 text-right pr-6">Points</th>
+                                <th id="admin-table-header" class="hidden p-4 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-tbody" class="divide-y divide-gray-850"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE: EVENTS ================= -->
+        <section id="page-events" class="hidden space-y-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="orbitron text-3xl font-black tracking-wider text-white">Sessions & Events</h2>
+                    <p class="text-gray-400 text-sm mt-1">Join upcoming events, submit signups, and explore recap galleries of past gatherings.</p>
+                </div>
+                <button id="admin-add-event-btn" onclick="openAddEventModal()" class="hidden bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center space-x-2 shadow-lg shadow-indigo-600/20 transition">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Create Session Post</span>
+                </button>
+            </div>
+
+            <div id="events-list" class="grid grid-cols-1 gap-8"></div>
+        </section>
+
+        <!-- ================= PAGE: QUIZZES ================= -->
+        <section id="page-quizzes" class="hidden space-y-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="orbitron text-3xl font-black tracking-wider text-white">Astro Quizzes</h2>
+                    <p class="text-gray-400 text-sm mt-1">Participate in challenges, test your science knowledge, and boost your leaderboard score.</p>
+                </div>
+                <button id="admin-add-quiz-btn" onclick="openAddQuizModal()" class="hidden bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center space-x-2 shadow-lg shadow-purple-600/20 transition">
+                    <i class="fa-solid fa-feather"></i>
+                    <span>Post New Quiz</span>
+                </button>
+            </div>
+
+            <div id="quizzes-list" class="grid grid-cols-1 gap-8"></div>
+        </section>
+
+        <!-- ================= PAGE: ACHIEVEMENTS ================= -->
+        <section id="page-achievements" class="hidden space-y-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="orbitron text-3xl font-black tracking-wider text-white">Awards & Achievements</h2>
+                    <p class="text-gray-400 text-sm mt-1">Celebrating our milestones, competition victories, and science accomplishments.</p>
+                </div>
+                <button id="admin-add-achievement-btn" onclick="openAddAchievementModal()" class="hidden bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center space-x-2 shadow-lg shadow-indigo-600/20 transition">
+                    <i class="fa-solid fa-trophy"></i>
+                    <span>Add Achievement</span>
+                </button>
+            </div>
+
+            <div id="achievements-list" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+        </section>
+
+        <!-- ================= PAGE: EXCO ================= -->
+        <section id="page-exco" class="hidden space-y-8">
+            <div class="flex flex-col md:flex-row justify-between items-center max-w-5xl mx-auto gap-4">
+                <div class="text-center md:text-left space-y-2">
+                    <h2 class="orbitron text-3xl font-black tracking-wider text-white">Meet the EXCO Team</h2>
+                    <p class="text-gray-400 text-sm">The leadership team guiding RISAC through our journey in science and space exploration.</p>
+                </div>
+                <button id="admin-add-exco-btn" onclick="openAddExcoModal()" class="hidden bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center space-x-2 shadow-lg shadow-indigo-600/20 transition">
+                    <i class="fa-solid fa-user-tie"></i>
+                    <span>Add EXCO Officer</span>
+                </button>
+            </div>
+
+            <div id="exco-team-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-gray-950 border-t border-gray-800 py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-600/10 p-2 rounded-lg text-indigo-400">
+                    <i class="fa-solid fa-user-astronaut"></i>
+                </div>
+                <span class="orbitron text-sm font-bold text-gray-300">RISAC EXCO © 2026</span>
+            </div>
+            <p class="text-xs text-gray-500">Made for the Science and Astronomy Club of Year 14. Hosted on GitHub Pages.</p>
+        </div>
+    </footer>
+
+
+    <!-- ================================= MODALS ================================= -->
+
+    <!-- MODAL: ADMIN PASSWORD ACCESS -->
+    <div id="admin-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+        <div class="space-card rounded-2xl max-w-sm w-full p-6 space-y-6 relative border border-gray-800">
+            <button onclick="closeAdminModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="text-center space-y-2">
+                <div class="w-12 h-12 rounded-full bg-indigo-600/20 text-indigo-400 flex items-center justify-center mx-auto text-lg">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h3 class="orbitron text-lg font-bold text-white">Admin Authentication</h3>
+                <p class="text-xs text-gray-400">Enter access key to configure leaderboard and manage uploads.</p>
+            </div>
+            <div class="space-y-4">
+                <div id="admin-login-fields" class="space-y-2">
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Access Password</label>
+                    <input type="password" id="admin-pass-input" placeholder="••••••••" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-indigo-500 text-white">
+                </div>
+                <div id="admin-logged-in-profile" class="hidden text-center p-3 bg-indigo-950/20 rounded-xl border border-indigo-500/10 space-y-2">
+                    <p class="text-xs text-indigo-300 font-semibold"><i class="fa-solid fa-check-circle mr-1"></i> Logged in as Administrator</p>
+                    <p class="text-[10px] text-gray-500">Admin Mode unlocks complete editing & deletion controls.</p>
+                </div>
+                <button id="admin-auth-submit" onclick="handleAdminAuth()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-lg text-sm font-semibold transition">
+                    Unlock Admin Tools
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD / EDIT MEMBER -->
+    <div id="add-member-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+        <div class="space-card rounded-2xl max-w-md w-full p-6 space-y-6 relative border border-gray-800">
+            <button onclick="closeAddMemberModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 id="member-modal-title" class="orbitron text-lg font-bold text-white">Add Club Member</h3>
+            <input type="hidden" id="member-id-input">
+            <div class="space-y-4">
+                <div class="space-y-1">
+                    <label class="block text-xs text-gray-400">Full Name</label>
+                    <input type="text" id="member-name-input" placeholder="e.g. Jeanette Neo" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-xs text-gray-400">Role / Title</label>
+                    <input type="text" id="member-role-input" placeholder="e.g. Sub-committee, Member" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="space-y-1" id="member-points-wrapper">
+                    <label class="block text-xs text-gray-400">Initial Points</label>
+                    <input type="number" id="member-points-input" value="0" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                </div>
+                <button onclick="saveMember()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-lg text-sm font-semibold transition">
+                    Save Member Details
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ADJUST SCORE -->
+    <div id="edit-points-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+        <div class="space-card rounded-2xl max-w-sm w-full p-6 space-y-6 relative border border-gray-800">
+            <button onclick="closeEditPointsModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div>
+                <h3 class="orbitron text-lg font-bold text-white">Modify Member Points</h3>
+                <p id="edit-points-member-name" class="text-xs text-gray-400 mt-1"></p>
+            </div>
+            <input type="hidden" id="edit-points-member-id">
+            <div class="space-y-4">
+                <div class="space-y-2">
+                    <label class="block text-xs text-gray-400">Adjust Score</label>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="adjustPointsInput(-5)" class="bg-gray-800 hover:bg-gray-700 text-white px-3 py-2 rounded-lg text-sm font-bold">-5</button>
+                        <button onclick="adjustPointsInput(-1)" class="bg-gray-800 hover:bg-gray-700 text-white px-3 py-2 rounded-lg text-sm font-bold">-1</button>
+                        <input type="number" id="edit-points-score-input" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-center text-sm text-white font-bold focus:outline-none focus:border-indigo-500">
+                        <button onclick="adjustPointsInput(1)" class="bg-gray-800 hover:bg-gray-700 text-white px-3 py-2 rounded-lg text-sm font-bold">+1</button>
+                        <button onclick="adjustPointsInput(5)" class="bg-gray-800 hover:bg-gray-700 text-white px-3 py-2 rounded-lg text-sm font-bold">+5</button>
+                    </div>
+                </div>
+                <button onclick="updateMemberPoints()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-lg text-sm font-semibold transition">
+                    Save New Score
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD / EDIT EVENT -->
+    <div id="add-event-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+        <div class="space-card rounded-2xl max-w-md w-full p-6 space-y-6 relative border border-gray-800">
+            <button onclick="closeAddEventModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 id="event-modal-title" class="orbitron text-lg font-bold text-white">Post New Event / Session</h3>
+            <input type="hidden" id="event-id-input">
+            <div class="space-y-4 max-h-[70vh] overflow-y-auto pr-2 no-scrollbar">
+                <div class="space-y-1">
+                    <label class="block text-xs text-gray-400">Event Title</label>
+                    <input type="text" id="event-title-input" placeholder="e.g. Orion Nebula Observing" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-xs text-gray-400">Date & Time Description</label>
+                    <input type="text" id="event-date-input" placeholder="e.g. Friday, October 16, 7:30 PM" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-xs text-gray-400">Location / Venue</label>
+                    <input type="text" id="event-location-input" placeholder="e.g. School Observatory" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-xs text-gray-400">Description</label>
+                    <textarea id="event-desc-input" rows="3" placeholder="Brief info about the event..." class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"></textarea>
+                </div>
+                <!-- Image selection -->
+                <div class="space-y-1.5">
+                    <label class="block text-xs text-gray-400">Cover Banner Image</label>
+                    <input type="file" id="event-file-input" accept="image/*" class="hidden" onchange="processSingleUpload(this, 'event-img-preview', 'event-img-url')">
+                    <div class="flex items-center space-x-3">
+                        <button type="button" onclick="document.getElementById('event-file-input').click()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-xs text-gray-300 font-bold border border-gray-750"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>Upload Photo</button>
+                        <span class="text-[10px] text-gray-500">Or paste URL below</span>
+                    </div>
+                    <input type="text" id="event-img-url" placeholder="https://example.com/banner.jpg" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    <img id="event-img-preview" src="" class="hidden w-full h-32 object-cover rounded-lg border border-gray-800 mt-2">
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-xs text-gray-400">Google Form Link (Optional)</label>
+                    <input type="text" id="event-form-input" placeholder="https://docs.google.com/forms/d/e/.../viewform" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                </div>
+                <button onclick="saveEvent()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-lg text-sm font-semibold transition mt-2">
+                    Publish Event Card
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD / EDIT QUIZ -->
+    <div id="add-quiz-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+        <div class="space-card rounded-2xl max-w-md w-full p-6 space-y-6 relative border border-gray-800">
+            <button onclick="closeAddQuizModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 id="quiz-modal-title" class="orbitron text-lg font-bold text-white">Post New Quiz Form</h3>
+            <input type="hidden" id="quiz-id-input">
+            <div class="space-y-4 max-h-[70vh] overflow-y-auto pr-2 no-scrollbar">
+                <div class="space-y-1">
+                    <label class="block text-xs text-gray-400">Quiz Title</label>
+                    <input type="text" id="quiz-title-input" placeholder="e.g. General Astronomy Quiz" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-xs text-gray-400">Deadline Description</label>
+                    <input type="text" id="quiz-deadline-input" placeholder="e.g. Closes Wednesday, Oct 21" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-xs text-gray-400">Points Award</label>
+                    <input type="text" id="quiz-points-input" placeholder="e.g. +10 Points on completion" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-xs text-gray-400">Quiz Instructions</label>
+                    <textarea id="quiz-desc-input" rows="3" placeholder="Briefly explain what topics are tested..." class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"></textarea>
+                </div>
+                <!-- Image Selection -->
+                <div class="space-y-1.5">
+                    <label class="block text-xs text-gray-400">Cover Graphic Image</label>
+                    <input type="file" id="quiz-file-input" accept="image/*" class="hidden" onchange="processSingleUpload(this, 'quiz-img-preview', 'quiz-img-url')">
+                    <div class="flex items-center space-x-3">
+                        <button type="button" onclick="document.getElementById('quiz-file-input').click()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-xs text-gray-300 font-bold border border-gray-750"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>Upload Photo</button>
+                        <span class="text-[10px] text-gray-500">Or paste URL below</span>
+                    </div>
+                    <input type="text" id="quiz-img-url" placeholder="https://example.com/quiz.jpg" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    <img id="quiz-img-preview" src="" class="hidden w-full h-32 object-cover rounded-lg border border-gray-800 mt-2">
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-xs text-gray-400">Google Form Link (Mandatory for embed)</label>
+                    <input type="text" id="quiz-form-input" placeholder="https://docs.google.com/forms/d/e/.../viewform" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                </div>
+                <button onclick="saveQuiz()" class="w-full bg-purple-600 hover:bg-purple-500 text-white py-2 rounded-lg text-sm font-semibold transition mt-2">
+                    Publish Quiz Form
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD / EDIT ACHIEVEMENT -->
+    <div id="add-achievement-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+        <div class="space-card rounded-2xl max-w-md w-full p-6 space-y-6 relative border border-gray-800">
+            <button onclick="closeAddAchievementModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 id="achievement-modal-title" class="orbitron text-lg font-bold text-white">Record Club Achievement</h3>
+            <input type="hidden" id="achievement-id-input">
+            <div class="space-y-4">
+                <div class="space-y-1">
+                    <label class="block text-xs text-gray-400">Achievement Title</label>
+                    <input type="text" id="ach-title-input" placeholder="e.g. Astronomy Olympiad Champion" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-xs text-gray-400">Year / Month</label>
+                    <input type="text" id="ach-date-input" placeholder="e.g. May 2026" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-xs text-gray-400">Summary Introduction</label>
+                    <textarea id="ach-desc-input" rows="3" placeholder="Explain details about who won or competition criteria..." class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"></textarea>
+                </div>
+                <!-- Image Selection -->
+                <div class="space-y-1.5">
+                    <label class="block text-xs text-gray-400">Awards Photo / Emblem</label>
+                    <input type="file" id="ach-file-input" accept="image/*" class="hidden" onchange="processSingleUpload(this, 'ach-img-preview', 'ach-img-url')">
+                    <div class="flex items-center space-x-3">
+                        <button type="button" onclick="document.getElementById('ach-file-input').click()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-xs text-gray-300 font-bold border border-gray-750"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>Upload Photo</button>
+                        <span class="text-[10px] text-gray-500">Or paste URL below</span>
+                    </div>
+                    <input type="text" id="ach-img-url" placeholder="https://example.com/emblem.jpg" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    <img id="ach-img-preview" src="" class="hidden w-full h-32 object-cover rounded-lg border border-gray-800 mt-2">
+                </div>
+                <button onclick="saveAchievement()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-lg text-sm font-semibold transition">
+                    Publish Achievement
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD / EDIT EXCO TEAM MEMBER -->
+    <div id="add-exco-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+        <div class="space-card rounded-2xl max-w-md w-full p-6 space-y-6 relative border border-gray-800">
+            <button onclick="closeAddExcoModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 id="exco-modal-title" class="orbitron text-lg font-bold text-white">Add EXCO Member</h3>
+            <input type="hidden" id="exco-id-input">
+            <div class="space-y-4 max-h-[70vh] overflow-y-auto pr-2 no-scrollbar">
+                <div class="space-y-1">
+                    <label class="block text-xs text-gray-400">Officer Name</label>
+                    <input type="text" id="exco-name-input" placeholder="e.g. Ethan Chen" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-xs text-gray-400">Position / Role</label>
+                    <input type="text" id="exco-role-input" placeholder="e.g. President" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-xs text-gray-400">Introduction Bio</label>
+                    <textarea id="exco-desc-input" rows="3" placeholder="Briefly describe background and passion..." class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"></textarea>
+                </div>
+                <!-- Photo Style Selection / Image upload -->
+                <div class="space-y-1.5">
+                    <label class="block text-xs text-gray-400">Profile Photo</label>
+                    <input type="file" id="exco-file-input" accept="image/*" class="hidden" onchange="processSingleUpload(this, 'exco-img-preview', 'exco-img-url')">
+                    <div class="flex items-center space-x-3">
+                        <button type="button" onclick="document.getElementById('exco-file-input').click()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-xs text-gray-300 font-bold border border-gray-750"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>Upload Photo</button>
+                        <span class="text-[10px] text-gray-500">Or paste URL below</span>
+                    </div>
+                    <input type="text" id="exco-img-url" placeholder="https://example.com/profile.jpg" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    <img id="exco-img-preview" src="" class="hidden w-20 h-20 object-cover rounded-full border border-indigo-500/20 mt-2">
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-xs text-gray-400">Card Header Accent Gradient</label>
+                    <select id="exco-gradient-input" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        <option value="from-indigo-900 to-purple-900">Nebula Purple (Indigo/Purple)</option>
+                        <option value="from-purple-900 to-pink-900">Cosmic Dust (Purple/Pink)</option>
+                        <option value="from-pink-900 to-rose-900">Supernova (Pink/Rose)</option>
+                        <option value="from-blue-900 to-cyan-900">Black Hole (Blue/Cyan)</option>
+                        <option value="from-teal-900 to-emerald-900">Aurora (Teal/Emerald)</option>
+                        <option value="from-amber-900 to-orange-900">Solar Flare (Amber/Orange)</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="block text-xs text-gray-400">Email Address (Optional)</label>
+                        <input type="email" id="exco-email-input" placeholder="exco@school.edu" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="block text-xs text-gray-400">GitHub Link (Optional)</label>
+                        <input type="text" id="exco-github-input" placeholder="https://github.com/..." class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+                <button onclick="saveExco()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-lg text-sm font-semibold transition mt-2">
+                    Save Officer Profile
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: COMPLETE EVENT WITH RECAP & MULTIPLE PHOTOS -->
+    <div id="complete-event-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+        <div class="space-card rounded-2xl max-w-lg w-full p-6 space-y-6 relative border border-gray-800">
+            <button onclick="closeCompleteEventModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div>
+                <h3 class="orbitron text-lg font-bold text-white">Complete Session & Build Gallery</h3>
+                <p id="complete-event-subtitle" class="text-xs text-gray-400 mt-1"></p>
+            </div>
+            <input type="hidden" id="complete-event-id">
+            <div class="space-y-4 max-h-[70vh] overflow-y-auto pr-2 no-scrollbar">
+                <div class="space-y-1">
+                    <label class="block text-xs text-gray-400">Event Recap/Highlights</label>
+                    <textarea id="complete-recap-input" rows="4" placeholder="How did the stargazing or experiment session go? Record memorable highlights..." class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"></textarea>
+                </div>
+                
+                <!-- Multiple Images Upload -->
+                <div class="space-y-2">
+                    <label class="block text-xs text-gray-400">Upload Multiple Session Photos</label>
+                    <input type="file" id="complete-gallery-input" accept="image/*" multiple class="hidden" onchange="processMultipleGalleryUploads(this)">
+                    <button type="button" onclick="document.getElementById('complete-gallery-input').click()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-xs font-bold text-white"><i class="fa-solid fa-images mr-1.5"></i>Select Gallery Files</button>
+                    
+                    <div id="gallery-preview-container" class="grid grid-cols-4 gap-2 mt-2"></div>
+                </div>
+
+                <button onclick="submitCompletedEvent()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-lg text-sm font-semibold transition mt-4">
+                    Archive as Past Event & Publish Gallery
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTIFICATION ALERTS BOX (Replaces browser alerts) -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 space-y-2 pointer-events-none"></div>
+
+
+    <!-- ================================= FIREBASE & APP CONTROLLERS ================= -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js';
+        import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js';
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, collection, addDoc, query, onSnapshot } from 'https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js';
+
+        // ================= CONFIGURATION FOR CLIENT TO SETUP =================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDVq1w8dhI6_y4kq1r-kKNANjI0qWF2Z9Y",
+            authDomain: "risac-website.firebaseapp.com",
+            projectId: "risac-website",
+            storageBucket: "risac-website.firebasestorage.app",
+            messagingSenderId: "324559403093",
+            appId: "1:324559403093:web:245373e188e518e7607cdc",
+            measurementId: "G-DG8YBRZDV1",
+        };
+
+        let useFirebase = false;
+        let db, auth;
+        const appId = 'RISAC-Y14-EXCO-Portal';
+
+        if (firebaseConfig.apiKey && firebaseConfig.projectId) {
+            try {
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                useFirebase = true;
+                console.log("Firebase initialized!");
+            } catch (err) {
+                console.error("Firebase Initialization failed, falling back to clean local storage:", err);
+            }
+        }
+
+        // --- GLOBAL STATE ---
+        window.state = {
+            isAdmin: false,
+            currentTab: 'home',
+            members: [],
+            events: [],
+            quizzes: [],
+            achievements: [],
+            exco: []
+        };
+
+        // Arrays to hold uploaded gallery Base64 strings inside the complete-modal
+        let temporaryGalleryBase64 = [];
+
+        // Initialize App UI and setup listeners on Load
+        window.addEventListener('DOMContentLoaded', async () => {
+            if (useFirebase) {
+                try {
+                    await signInAnonymously(auth);
+                } catch (error) {
+                    showToast("Visitor read active. Modifications disabled without admin authentication.", "error");
+                }
+                onAuthStateChanged(auth, (user) => {
+                    loadRealtimeDatabase();
+                });
+            } else {
+                loadCleanLocalStorage();
+                renderAllUI();
+            }
+        });
+
+        // ================= REALTIME DISPATCHERS (Firestore Compliance Rules 1, 2, & 3) =================
+        function loadRealtimeDatabase() {
+            if (!useFirebase) return;
+
+            // 1. Members
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'members'), (snapshot) => {
+                let loaded = [];
+                snapshot.forEach((d) => loaded.push({ id: d.id, ...d.data() }));
+                loaded.sort((a, b) => b.points - a.points);
+                window.state.members = loaded;
+                renderLeaderboard();
+                togglePrinstineHelper();
+            }, (err) => console.error(err));
+
+            // 2. Events
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'events'), (snapshot) => {
+                let loaded = [];
+                snapshot.forEach((d) => loaded.push({ id: d.id, ...d.data() }));
+                window.state.events = loaded;
+                renderEvents();
+                togglePrinstineHelper();
+            }, (err) => console.error(err));
+
+            // 3. Quizzes
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'quizzes'), (snapshot) => {
+                let loaded = [];
+                snapshot.forEach((d) => loaded.push({ id: d.id, ...d.data() }));
+                window.state.quizzes = loaded;
+                renderQuizzes();
+                togglePrinstineHelper();
+            }, (err) => console.error(err));
+
+            // 4. Achievements
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'achievements'), (snapshot) => {
+                let loaded = [];
+                snapshot.forEach((d) => loaded.push({ id: d.id, ...d.data() }));
+                window.state.achievements = loaded;
+                renderAchievements();
+                togglePrinstineHelper();
+            }, (err) => console.error(err));
+
+            // 5. EXCO
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'exco'), (snapshot) => {
+                let loaded = [];
+                snapshot.forEach((d) => loaded.push({ id: d.id, ...d.data() }));
+                window.state.exco = loaded;
+                renderExco();
+                togglePrinstineHelper();
+            }, (err) => console.error(err));
+        }
+
+        // clean slate localstorage loader
+        function loadCleanLocalStorage() {
+            window.state.members = JSON.parse(localStorage.getItem('risac_clean_members') || '[]');
+            window.state.events = JSON.parse(localStorage.getItem('risac_clean_events') || '[]');
+            window.state.quizzes = JSON.parse(localStorage.getItem('risac_clean_quizzes') || '[]');
+            window.state.achievements = JSON.parse(localStorage.getItem('risac_clean_achievements') || '[]');
+            window.state.exco = JSON.parse(localStorage.getItem('risac_clean_exco') || '[]');
+            togglePrinstineHelper();
+        }
+
+        function saveLocalData(key, data) {
+            localStorage.setItem(key, JSON.stringify(data));
+            togglePrinstineHelper();
+        }
+
+        function togglePrinstineHelper() {
+            const hasData = window.state.members.length > 0 || 
+                            window.state.events.length > 0 || 
+                            window.state.quizzes.length > 0 || 
+                            window.state.achievements.length > 0 || 
+                            window.state.exco.length > 0;
+            const helper = document.getElementById('admin-setup-tip');
+            if (!hasData && window.state.isAdmin) {
+                helper.classList.remove('hidden');
+            } else {
+                helper.classList.add('hidden');
+            }
+        }
+
+        // ================= RENDERING AND GRAPHICS LOGIC =================
+        window.renderAllUI = function renderAllUI() {
+            renderLeaderboard();
+            renderEvents();
+            renderQuizzes();
+            renderAchievements();
+            renderExco();
+            togglePrinstineHelper();
+        };
+
+        // Render Leaderboard
+        window.renderLeaderboard = function renderLeaderboard() {
+            const podium = document.getElementById('podium-container');
+            const tbody = document.getElementById('leaderboard-tbody');
+            const mCount = document.getElementById('member-count');
+            
+            podium.innerHTML = '';
+            tbody.innerHTML = '';
+
+            const list = window.state.members;
+            mCount.textContent = `${list.length} members`;
+
+            if (list.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="p-8 text-center text-gray-500">
+                            <i class="fa-solid fa-users-viewfinder text-3xl text-gray-700 mb-2 block"></i>
+                            No members added to the leaderboard yet.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            const podiumItems = list.slice(0, 3);
+            const tableItems = list.slice(3);
+
+            podiumItems.forEach((user, idx) => {
+                const rank = idx + 1;
+                let cardTheme = 'border-gray-800 shadow-gray-500/5';
+                let rankBg = 'bg-gray-800 text-white';
+                let medal = '';
+
+                if (rank === 1) {
+                    cardTheme = 'border-yellow-500/40 shadow-yellow-500/10 shadow-lg';
+                    rankBg = 'bg-gradient-to-br from-yellow-400 to-amber-600 text-black';
+                    medal = '<i class="fa-solid fa-crown text-yellow-400 absolute -top-5 left-1/2 -translate-x-1/2 text-2xl drop-shadow animate-bounce"></i>';
+                } else if (rank === 2) {
+                    cardTheme = 'border-slate-300/30 shadow-slate-300/5';
+                    rankBg = 'bg-gradient-to-br from-slate-300 to-slate-500 text-black';
+                } else if (rank === 3) {
+                    cardTheme = 'border-amber-700/30 shadow-amber-700/5';
+                    rankBg = 'bg-gradient-to-br from-amber-600 to-amber-900 text-white';
+                }
+
+                podium.innerHTML += `
+                    <div class="space-card rounded-2xl p-6 text-center relative ${cardTheme} transition duration-300 group hover:scale-[1.02]">
+                        ${medal}
+                        <div class="w-16 h-16 rounded-full ${rankBg} flex items-center justify-center font-black text-xl mx-auto shadow-lg relative z-10">
+                            ${rank}
+                        </div>
+                        <div class="mt-4">
+                            <h4 class="font-extrabold text-lg text-white group-hover:text-indigo-400 transition">${user.name}</h4>
+                            <p class="text-xs text-gray-400">${user.role}</p>
+                        </div>
+                        <div class="mt-4 inline-block bg-indigo-950/40 border border-indigo-900/30 px-4 py-1.5 rounded-full">
+                            <span class="orbitron font-extrabold text-indigo-400">${user.points}</span>
+                            <span class="text-[10px] text-indigo-300 font-bold ml-1 uppercase">PTS</span>
+                        </div>
+                        ${window.state.isAdmin ? `
+                            <div class="mt-4 flex justify-center space-x-2 border-t border-gray-800/80 pt-4">
+                                <button onclick="openEditMemberModal('${user.id}', '${user.name}', '${user.role}', ${user.points})" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 rounded text-xs font-semibold text-white transition"><i class="fa-solid fa-user-pen"></i></button>
+                                <button onclick="openEditPointsModal('${user.id}', '${user.name}', ${user.points})" class="px-2.5 py-1 bg-teal-600 hover:bg-teal-500 rounded text-xs font-semibold text-white transition"><i class="fa-solid fa-plus-minus"></i></button>
+                                <button onclick="deleteMember('${user.id}')" class="px-2.5 py-1 bg-red-900/30 hover:bg-red-900/60 text-red-400 rounded text-xs transition"><i class="fa-solid fa-trash-can"></i></button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+
+            tableItems.forEach((user, idx) => {
+                const rank = idx + 4;
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-900/20 transition duration-150">
+                        <td class="p-4 pl-6 font-bold text-gray-500">${rank}</td>
+                        <td class="p-4 font-bold text-white">${user.name}</td>
+                        <td class="p-4 text-xs text-gray-400">${user.role}</td>
+                        <td class="p-4 text-right pr-6 font-bold text-indigo-400 orbitron">${user.points} <span class="text-[9px] text-gray-500">PTS</span></td>
+                        ${window.state.isAdmin ? `
+                            <td class="p-4 text-center">
+                                <div class="flex justify-center items-center space-x-2">
+                                    <button onclick="openEditMemberModal('${user.id}', '${user.name}', '${user.role}', ${user.points})" class="bg-indigo-950/80 border border-indigo-900/40 text-indigo-300 text-xs px-2.5 py-1 rounded-lg hover:bg-indigo-900">
+                                        <i class="fa-solid fa-user-pen"></i>
+                                    </button>
+                                    <button onclick="openEditPointsModal('${user.id}', '${user.name}', ${user.points})" class="bg-teal-950/80 border border-teal-900/40 text-teal-300 text-xs px-2.5 py-1 rounded-lg hover:bg-teal-900">
+                                        <i class="fa-solid fa-plus-minus"></i>
+                                    </button>
+                                    <button onclick="deleteMember('${user.id}')" class="text-red-400 hover:text-red-300 p-1 rounded hover:bg-red-950/20">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        ` : ''}
+                    </tr>
+                `;
+            });
+        };
+
+        // Render Events
+        window.renderEvents = function renderEvents() {
+            const listDiv = document.getElementById('events-list');
+            listDiv.innerHTML = '';
+
+            // Sort logic: active (completed: false) on top, completed on bottom
+            const events = [...window.state.events].sort((a, b) => {
+                const aVal = a.completed ? 1 : 0;
+                const bVal = b.completed ? 1 : 0;
+                return aVal - bVal;
+            });
+
+            if (events.length === 0) {
+                listDiv.innerHTML = `
+                    <div class="space-card rounded-2xl p-12 text-center text-gray-400 border border-dashed border-gray-800">
+                        <i class="fa-solid fa-calendar-xmark text-4xl text-gray-700 mb-3 block"></i>
+                        No scheduled astronomy events or experimental sessions posted.
+                    </div>
+                `;
+                return;
+            }
+
+            events.forEach((event) => {
+                const formLink = event.formLink ? event.formLink.trim() : '';
+                const showEmbed = formLink && !event.completed;
+                const coverImage = event.image || '';
+
+                let cardStyle = "border-gray-850";
+                let badge = `<span class="px-2.5 py-1 text-[10px] font-bold tracking-widest orbitron bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 uppercase rounded-full">Active Event</span>`;
+                if (event.completed) {
+                    cardStyle = "border-gray-900 bg-gray-950/30 opacity-90";
+                    badge = `<span class="px-2.5 py-1 text-[10px] font-bold tracking-widest orbitron bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase rounded-full"><i class="fa-solid fa-check mr-1"></i>Completed / Gallery Active</span>`;
+                }
+
+                listDiv.innerHTML += `
+                    <div class="space-card rounded-2xl overflow-hidden border ${cardStyle} flex flex-col transition duration-300">
+                        ${coverImage ? `<img src="${coverImage}" class="w-full h-48 sm:h-64 object-cover filter brightness-[0.85]">` : ''}
+                        
+                        <div class="p-6 border-b border-gray-850 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div class="space-y-1.5">
+                                <div class="flex items-center space-x-2">
+                                    ${badge}
+                                </div>
+                                <h3 class="text-2xl font-black text-white">${event.title}</h3>
+                            </div>
+                            <div class="flex flex-wrap gap-2 text-xs">
+                                <div class="flex items-center text-gray-300 bg-gray-900 px-3 py-1.5 rounded-lg border border-gray-800">
+                                    <i class="fa-solid fa-calendar-day text-indigo-400 mr-2"></i> ${event.date}
+                                </div>
+                                <div class="flex items-center text-gray-300 bg-gray-900 px-3 py-1.5 rounded-lg border border-gray-800">
+                                    <i class="fa-solid fa-location-dot text-purple-400 mr-2"></i> ${event.location}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-6 space-y-6">
+                            <p class="text-gray-400 text-sm leading-relaxed whitespace-pre-line">${event.desc}</p>
+                            
+                            <!-- Complete recap view if completed -->
+                            ${event.completed ? `
+                                <div class="space-y-4 border-t border-gray-850 pt-6">
+                                    <h4 class="text-xs font-bold uppercase tracking-widest orbitron text-emerald-400 flex items-center"><i class="fa-solid fa-star-of-david mr-2"></i>Event Recap Highlights</h4>
+                                    <p class="text-sm text-gray-300 italic whitespace-pre-line bg-gray-950/50 p-4 rounded-xl border border-gray-900">${event.recap || 'Highlights loading...'}</p>
+                                    
+                                    <!-- Photo Gallery grid -->
+                                    ${event.gallery && event.gallery.length > 0 ? `
+                                        <div class="space-y-2">
+                                            <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-2">Event Gallery Grid (${event.gallery.length} Images)</span>
+                                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                                                ${event.gallery.map(img => `
+                                                    <div class="aspect-square bg-gray-900 rounded-xl overflow-hidden border border-gray-850 group cursor-pointer" onclick="openPhotoViewer('${img}')">
+                                                        <img src="${img}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            ` : ''}
+
+                            <!-- Embedded forms if active -->
+                            ${showEmbed ? `
+                                <div class="border border-indigo-950/50 rounded-xl overflow-hidden bg-gray-950/60 p-4 space-y-4">
+                                    <div class="flex justify-between items-center flex-wrap gap-2">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="flex h-2.5 w-2.5 relative">
+                                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                                                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-indigo-500"></span>
+                                            </span>
+                                            <p class="text-xs font-bold text-indigo-400 uppercase tracking-wider">Dynamic Form / Sign Up Embedded Below</p>
+                                        </div>
+                                        <a href="${formLink}" target="_blank" class="text-xs text-indigo-400 hover:underline">Open Sign Up in New Tab <i class="fa-solid fa-up-right-from-square ml-1 text-[10px]"></i></a>
+                                    </div>
+                                    <div class="relative w-full aspect-[4/3] sm:aspect-[16/9] bg-gray-900 rounded-lg overflow-hidden border border-gray-800">
+                                        <iframe src="${formLink}" class="absolute inset-0 w-full h-full border-0" allowfullscreen>Loading form systems...</iframe>
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        ${window.state.isAdmin ? `
+                            <div class="p-4 bg-gray-950/60 border-t border-gray-850 flex justify-end gap-2 flex-wrap">
+                                ${!event.completed ? `
+                                    <button onclick="openCompleteEventModal('${event.id}', '${event.title}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg transition">
+                                        <i class="fa-solid fa-images mr-1"></i> Mark Complete & Add Photos
+                                    </button>
+                                ` : ''}
+                                <button onclick="openEditEventModal('${event.id}', '${encodeURIComponent(JSON.stringify(event))}')" class="px-3 py-1.5 bg-indigo-900/30 hover:bg-indigo-900/60 text-indigo-400 text-xs font-semibold rounded-lg transition">
+                                    <i class="fa-solid fa-pen-to-square mr-1"></i> Edit
+                                </button>
+                                <button onclick="deleteEvent('${event.id}')" class="px-3 py-1.5 bg-red-900/20 hover:bg-red-900/50 text-red-400 text-xs font-semibold rounded-lg transition">
+                                    <i class="fa-solid fa-trash-can mr-1"></i> Delete
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+        };
+
+        // Render Quizzes
+        window.renderQuizzes = function renderQuizzes() {
+            const listDiv = document.getElementById('quizzes-list');
+            listDiv.innerHTML = '';
+
+            const list = window.state.quizzes;
+
+            if (list.length === 0) {
+                listDiv.innerHTML = `
+                    <div class="space-card rounded-2xl p-12 text-center text-gray-400 border border-dashed border-purple-950/50">
+                        <i class="fa-solid fa-feather text-4xl text-gray-750 mb-3 block"></i>
+                        No dynamic physics or Astro-quizzes posted on this panel yet.
+                    </div>
+                `;
+                return;
+            }
+
+            list.forEach((quiz) => {
+                const formLink = quiz.formLink ? quiz.formLink.trim() : '';
+                const coverImage = quiz.image || '';
+
+                listDiv.innerHTML += `
+                    <div class="space-card rounded-2xl overflow-hidden border border-purple-950/20 flex flex-col transition duration-300">
+                        ${coverImage ? `<img src="${coverImage}" class="w-full h-48 sm:h-64 object-cover filter brightness-[0.85]">` : ''}
+                        
+                        <div class="p-6 border-b border-gray-850 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div class="space-y-1">
+                                <div class="flex items-center space-x-2">
+                                    <span class="px-2.5 py-1 text-[10px] font-bold tracking-widest orbitron bg-purple-500/10 text-purple-400 border border-purple-500/20 uppercase rounded-full">Interactive Quiz</span>
+                                </div>
+                                <h3 class="text-2xl font-black text-white">${quiz.title}</h3>
+                            </div>
+                            <div class="flex flex-wrap gap-2 text-xs">
+                                <div class="flex items-center text-gray-300 bg-gray-900 px-3 py-1.5 rounded-lg border border-gray-800">
+                                    <i class="fa-solid fa-clock text-purple-400 mr-2"></i> ${quiz.deadline}
+                                </div>
+                                <div class="flex items-center text-yellow-400 bg-yellow-950/30 px-3 py-1.5 rounded-lg border border-yellow-500/20 font-bold">
+                                    <i class="fa-solid fa-star mr-2"></i> ${quiz.points || 'Leaderboard score'}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-6 space-y-6">
+                            <p class="text-gray-400 text-sm leading-relaxed whitespace-pre-line">${quiz.desc}</p>
+                            
+                            ${formLink ? `
+                                <div class="border border-purple-950/30 rounded-xl overflow-hidden bg-gray-950/60 p-4 space-y-4">
+                                    <div class="flex justify-between items-center flex-wrap gap-2">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="flex h-2.5 w-2.5 relative">
+                                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                                                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-purple-500"></span>
+                                            </span>
+                                            <p class="text-xs font-bold text-purple-400 uppercase tracking-wider">Dynamic Google Form Embedded Below</p>
+                                        </div>
+                                        <a href="${formLink}" target="_blank" class="text-xs text-purple-400 hover:underline">Open Quiz Form in New Tab <i class="fa-solid fa-up-right-from-square ml-1 text-[10px]"></i></a>
+                                    </div>
+                                    <div class="relative w-full aspect-[4/3] sm:aspect-[16/9] bg-gray-900 rounded-lg overflow-hidden border border-gray-800">
+                                        <iframe src="${formLink}" class="absolute inset-0 w-full h-full border-0" allowfullscreen>Loading Google Form system...</iframe>
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        ${window.state.isAdmin ? `
+                            <div class="p-4 bg-gray-950/60 border-t border-gray-850 flex justify-end gap-2">
+                                <button onclick="openEditQuizModal('${quiz.id}', '${encodeURIComponent(JSON.stringify(quiz))}')" class="px-3 py-1.5 bg-purple-900/30 hover:bg-purple-900/60 text-purple-400 text-xs font-semibold rounded-lg transition">
+                                    <i class="fa-solid fa-pen-to-square mr-1"></i> Edit
+                                </button>
+                                <button onclick="deleteQuiz('${quiz.id}')" class="px-3 py-1.5 bg-red-900/20 hover:bg-red-900/50 text-red-400 text-xs font-semibold rounded-lg transition">
+                                    <i class="fa-solid fa-trash-can mr-1"></i> Delete
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+        };
+
+        // Render Achievements
+        window.renderAchievements = function renderAchievements() {
+            const listDiv = document.getElementById('achievements-list');
+            listDiv.innerHTML = '';
+
+            const list = window.state.achievements;
+
+            if (list.length === 0) {
+                listDiv.innerHTML = `
+                    <div class="space-card rounded-2xl p-12 text-center text-gray-400 border border-dashed border-gray-850 md:col-span-2">
+                        <i class="fa-solid fa-trophy text-4xl text-gray-750 mb-3 block"></i>
+                        No recorded victories or science awards archived yet.
+                    </div>
+                `;
+                return;
+            }
+
+            list.forEach((ach) => {
+                const coverImage = ach.image || '';
+
+                listDiv.innerHTML += `
+                    <div class="space-card rounded-2xl overflow-hidden border border-yellow-500/10 hover:border-yellow-500/25 transition duration-300 group flex flex-col justify-between">
+                        <div>
+                            ${coverImage ? `<img src="${coverImage}" class="w-full h-48 object-cover filter brightness-[0.85]">` : ''}
+                            <div class="p-6 space-y-4">
+                                <div class="flex justify-between items-start gap-2">
+                                    <span class="p-3 bg-yellow-500/10 text-yellow-500 rounded-xl"><i class="fa-solid fa-award text-xl"></i></span>
+                                    <span class="text-xs font-bold text-gray-500">${ach.date}</span>
+                                </div>
+                                <div class="space-y-1">
+                                    <h3 class="text-lg font-extrabold text-white group-hover:text-indigo-400 transition">${ach.title}</h3>
+                                    <p class="text-gray-400 text-sm leading-relaxed">${ach.desc}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        ${window.state.isAdmin ? `
+                            <div class="p-4 bg-gray-950/60 border-t border-gray-850 flex justify-end gap-2">
+                                <button onclick="openEditAchievementModal('${ach.id}', '${encodeURIComponent(JSON.stringify(ach))}')" class="text-indigo-400 hover:text-indigo-300 text-xs font-semibold mr-3">
+                                    <i class="fa-solid fa-pen mr-1"></i> Edit
+                                </button>
+                                <button onclick="deleteAchievement('${ach.id}')" class="text-red-400 hover:text-red-300 text-xs font-semibold">
+                                    <i class="fa-solid fa-trash-can mr-1"></i> Delete
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+        };
+
+        // Render EXCO Team Cards
+        window.renderExco = function renderExco() {
+            const listDiv = document.getElementById('exco-team-list');
+            listDiv.innerHTML = '';
+
+            const list = window.state.exco;
+
+            if (list.length === 0) {
+                listDiv.innerHTML = `
+                    <div class="space-card rounded-2xl p-12 text-center text-gray-400 border border-dashed border-gray-850 md:col-span-3">
+                        <i class="fa-solid fa-id-badge text-4xl text-gray-755 mb-3 block"></i>
+                        No EXCO profile cards created yet.
+                    </div>
+                `;
+                return;
+            }
+
+            list.forEach((exco) => {
+                const gradient = exco.gradient || 'from-indigo-900 to-purple-900';
+                const profileImage = exco.image || '';
+
+                listDiv.innerHTML += `
+                    <div class="space-card rounded-2xl overflow-hidden group hover:border-indigo-500/40 transition duration-300">
+                        <div class="h-48 bg-gradient-to-r ${gradient} flex flex-col items-center justify-center relative overflow-hidden">
+                            ${profileImage ? `
+                                <img src="${profileImage}" class="w-full h-full object-cover">
+                            ` : `
+                                <i class="fa-solid fa-user-astronaut text-7xl text-white/15 group-hover:scale-110 transition duration-300"></i>
+                            `}
+                            <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <span class="px-4 py-1.5 rounded-full text-xs font-semibold bg-indigo-600 text-white">Y14 Officer</span>
+                            </div>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div>
+                                <h3 class="text-xl font-bold text-white">${exco.name}</h3>
+                                <p class="text-indigo-400 text-sm font-semibold">${exco.role}</p>
+                            </div>
+                            <p class="text-gray-400 text-sm leading-relaxed">${exco.desc}</p>
+                            
+                            <div class="flex justify-between items-center border-t border-gray-850 pt-4">
+                                <div class="flex space-x-3 text-gray-400">
+                                    ${exco.github ? `<a href="${exco.github}" target="_blank" class="hover:text-indigo-400 transition"><i class="fa-brands fa-github text-base"></i></a>` : ''}
+                                    ${exco.email ? `<a href="mailto:${exco.email}" class="hover:text-indigo-400 transition"><i class="fa-solid fa-envelope text-base"></i></a>` : ''}
+                                </div>
+                                
+                                ${window.state.isAdmin ? `
+                                    <div class="flex space-x-2">
+                                        <button onclick="openEditExcoModal('${exco.id}', '${encodeURIComponent(JSON.stringify(exco))}')" class="text-indigo-400 hover:text-indigo-300 text-xs font-semibold" title="Edit Profile"><i class="fa-solid fa-user-pen mr-1"></i>Edit</button>
+                                        <button onclick="deleteExco('${exco.id}')" class="text-red-400 hover:text-red-300 text-xs font-semibold" title="Remove Profile"><i class="fa-solid fa-trash-can mr-1"></i>Delete</button>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        };
+
+        // ================= CLIENT COMPRESSION SYSTEM (No Storage Bucket limits) =================
+        window.compressAndEncodeImage = function compressAndEncodeImage(file, callback) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = new Image();
+                img.onload = function () {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    const max_size = 500; // Keep image boundaries compact to maintain small Firestore payloads
+                    
+                    if (width > height) {
+                        if (width > max_size) {
+                            height *= max_size / width;
+                            width = max_size;
+                        }
+                    } else {
+                        if (height > max_size) {
+                            width *= max_size / height;
+                            height = max_size;
+                        }
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Compress JPEG slightly to drastically reduce Firestore text size
+                    const base64 = canvas.toDataURL('image/jpeg', 0.6); 
+                    callback(base64);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+
+        // Single Image Upload Helper
+        window.processSingleUpload = function processSingleUpload(input, previewId, urlFieldId) {
+            if (input.files && input.files[0]) {
+                compressAndEncodeImage(input.files[0], (base64) => {
+                    document.getElementById(urlFieldId).value = base64;
+                    const preview = document.getElementById(previewId);
+                    preview.src = base64;
+                    preview.classList.remove('hidden');
+                });
+            }
+        };
+
+        // Multiple Image Upload Helper for completed event gallery
+        window.processMultipleGalleryUploads = function processMultipleGalleryUploads(input) {
+            const container = document.getElementById('gallery-preview-container');
+            
+            if (input.files) {
+                Array.from(input.files).forEach((file) => {
+                    compressAndEncodeImage(file, (base64) => {
+                        temporaryGalleryBase64.push(base64);
+                        
+                        // Render miniature preview square inside modal
+                        const wrap = document.createElement('div');
+                        wrap.className = "aspect-square relative rounded-lg border border-gray-800 overflow-hidden group";
+                        wrap.innerHTML = `
+                            <img src="${base64}" class="w-full h-full object-cover">
+                            <button type="button" onclick="removeTempGalleryItem(this, '${base64}')" class="absolute top-1 right-1 bg-black/60 hover:bg-black/90 text-red-400 rounded-full h-5 w-5 flex items-center justify-center text-[10px] transition">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        `;
+                        container.appendChild(wrap);
+                    });
+                });
+            }
+        };
+
+        window.removeTempGalleryItem = function removeTempGalleryItem(btn, base64) {
+            temporaryGalleryBase64 = temporaryGalleryBase64.filter(item => item !== base64);
+            btn.parentElement.remove();
+        };
+
+
+        // ================= ADMIN CREDENTIAL CONTROL =================
+        window.handleAdminAuth = function handleAdminAuth() {
+            const pass = document.getElementById('admin-pass-input').value;
+            
+            if (pass === "RISACY14EXCO") {
+                window.state.isAdmin = true;
+                showToast("Admin access unlocked successfully!", "success");
+                
+                // Switch forms
+                document.getElementById('admin-login-fields').classList.add('hidden');
+                document.getElementById('admin-logged-in-profile').classList.remove('hidden');
+                
+                const submitBtn = document.getElementById('admin-auth-submit');
+                submitBtn.textContent = "Log Out of Admin Portal";
+                submitBtn.onclick = logoutAdmin;
+                submitBtn.className = "w-full bg-red-950/40 hover:bg-red-900/60 text-red-300 border border-red-900/40 py-2 rounded-lg text-sm font-semibold transition";
+
+                document.getElementById('admin-badge').className = "flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-indigo-950 border border-indigo-500/30 text-indigo-400 shadow-lg shadow-indigo-500/10";
+                document.getElementById('admin-status-text').textContent = "Admin Mode On";
+
+                // Dynamic creator additions
+                document.getElementById('admin-add-member-btn').classList.remove('hidden');
+                document.getElementById('admin-add-event-btn').classList.remove('hidden');
+                document.getElementById('admin-add-quiz-btn').classList.remove('hidden');
+                document.getElementById('admin-add-achievement-btn').classList.remove('hidden');
+                document.getElementById('admin-add-exco-btn').classList.remove('hidden');
+                document.getElementById('admin-table-header').classList.remove('hidden');
+
+                renderAllUI();
+                closeAdminModal();
+            } else {
+                showToast("Incorrect passcode. Access denied.", "error");
+            }
+        };
+
+        window.logoutAdmin = function logoutAdmin() {
+            window.state.isAdmin = false;
+            showToast("Admin status logged out.", "success");
+
+            document.getElementById('admin-login-fields').classList.remove('hidden');
+            document.getElementById('admin-logged-in-profile').classList.add('hidden');
+            document.getElementById('admin-pass-input').value = "";
+
+            const submitBtn = document.getElementById('admin-auth-submit');
+            submitBtn.textContent = "Unlock Admin Tools";
+            submitBtn.onclick = handleAdminAuth;
+            submitBtn.className = "w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-lg text-sm font-semibold transition";
+
+            document.getElementById('admin-badge').className = "flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-gray-800 text-gray-300 hover:bg-gray-700 transition duration-150";
+            document.getElementById('admin-status-text').textContent = "Admin Access";
+
+            document.getElementById('admin-add-member-btn').classList.add('hidden');
+            document.getElementById('admin-add-event-btn').classList.add('hidden');
+            document.getElementById('admin-add-quiz-btn').classList.add('hidden');
+            document.getElementById('admin-add-achievement-btn').classList.add('hidden');
+            document.getElementById('admin-add-exco-btn').classList.add('hidden');
+            document.getElementById('admin-table-header').classList.add('hidden');
+
+            renderAllUI();
+            closeAdminModal();
+        };
+
+
+        // ================= DATABASE READ & WRITE SYSTEM (Firebase Compatible) =================
+
+        // 1. Leaderboard Methods
+        window.saveMember = async function saveMember() {
+            const id = document.getElementById('member-id-input').value;
+            const name = document.getElementById('member-name-input').value.trim();
+            const role = document.getElementById('member-role-input').value.trim() || 'Member';
+            const points = parseInt(document.getElementById('member-points-input').value) || 0;
+
+            if (!name) {
+                showToast("Name field is required.", "error");
+                return;
+            }
+
+            if (useFirebase) {
+                try {
+                    const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'members');
+                    if (id) {
+                        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'members', id), { name, role });
+                    } else {
+                        await addDoc(colRef, { name, role, points });
+                    }
+                    showToast("Leaderboard member saved!", "success");
+                } catch (e) {
+                    showToast("Database write error.", "error");
+                }
+            } else {
+                if (id) {
+                    window.state.members = window.state.members.map(u => u.id === id ? { ...u, name, role } : u);
+                } else {
+                    window.state.members.push({ id: crypto.randomUUID(), name, role, points });
+                }
+                window.state.members.sort((a,b) => b.points - a.points);
+                saveLocalData('risac_clean_members', window.state.members);
+                renderLeaderboard();
+                showToast("Leaderboard member saved (Local Mode)!", "success");
+            }
+            closeAddMemberModal();
+        };
+
+        window.updateMemberPoints = async function updateMemberPoints() {
+            const memberId = document.getElementById('edit-points-member-id').value;
+            const newPoints = parseInt(document.getElementById('edit-points-score-input').value) || 0;
+
+            if (useFirebase) {
+                try {
+                    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'members', memberId), { points: newPoints });
+                    showToast("Points database score updated!", "success");
+                } catch (e) {
+                    showToast("Failed to modify score.", "error");
+                }
+            } else {
+                window.state.members = window.state.members.map(u => u.id === memberId ? { ...u, points: newPoints } : u).sort((a,b) => b.points - a.points);
+                saveLocalData('risac_clean_members', window.state.members);
+                renderLeaderboard();
+                showToast("Points updated (Local Mode)!", "success");
+            }
+            closeEditPointsModal();
+        };
+
+        window.deleteMember = async function deleteMember(id) {
+            if (!confirm("Are you sure you want to remove this member from the leaderboard?")) return;
+
+            if (useFirebase) {
+                try {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'members', id));
+                    showToast("Deleted member from database.", "success");
+                } catch (e) {
+                    showToast("Could not remove document.", "error");
+                }
+            } else {
+                window.state.members = window.state.members.filter(u => u.id !== id);
+                saveLocalData('risac_clean_members', window.state.members);
+                renderLeaderboard();
+                showToast("Deleted member (Local Mode).", "success");
+            }
+        };
+
+
+        // 2. Events Methods
+        window.saveEvent = async function saveEvent() {
+            const id = document.getElementById('event-id-input').value;
+            const title = document.getElementById('event-title-input').value.trim();
+            const date = document.getElementById('event-date-input').value.trim();
+            const location = document.getElementById('event-location-input').value.trim();
+            const desc = document.getElementById('event-desc-input').value.trim();
+            const image = document.getElementById('event-img-url').value.trim();
+            const formLink = document.getElementById('event-form-input').value.trim();
+
+            if (!title || !date || !location) {
+                showToast("Title, Date, and Location are mandatory.", "error");
+                return;
+            }
+
+            if (useFirebase) {
+                try {
+                    const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'events');
+                    if (id) {
+                        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'events', id), { title, date, location, desc, image, formLink });
+                    } else {
+                        await addDoc(colRef, { title, date, location, desc, image, formLink, completed: false, recap: '', gallery: [] });
+                    }
+                    showToast("Event saved to database!", "success");
+                } catch (e) {
+                    showToast("Failed to save event.", "error");
+                }
+            } else {
+                if (id) {
+                    window.state.events = window.state.events.map(e => e.id === id ? { ...e, title, date, location, desc, image, formLink } : e);
+                } else {
+                    window.state.events.push({ id: crypto.randomUUID(), title, date, location, desc, image, formLink, completed: false, recap: '', gallery: [] });
+                }
+                saveLocalData('risac_clean_events', window.state.events);
+                renderEvents();
+                showToast("Event saved (Local Mode)!", "success");
+            }
+            closeAddEventModal();
+        };
+
+        window.submitCompletedEvent = async function submitCompletedEvent() {
+            const id = document.getElementById('complete-event-id').value;
+            const recap = document.getElementById('complete-recap-input').value.trim();
+
+            if (!recap) {
+                showToast("Please provide written highlights/recap.", "error");
+                return;
+            }
+
+            if (useFirebase) {
+                try {
+                    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'events', id), {
+                        completed: true,
+                        recap: recap,
+                        gallery: temporaryGalleryBase64
+                    });
+                    showToast("Event marked completed & gallery saved!", "success");
+                } catch (e) {
+                    showToast("Database transfer error.", "error");
+                }
+            } else {
+                window.state.events = window.state.events.map(e => e.id === id ? { ...e, completed: true, recap, gallery: temporaryGalleryBase64 } : e);
+                saveLocalData('risac_clean_events', window.state.events);
+                renderEvents();
+                showToast("Event completed & gallery saved (Local Mode)!", "success");
+            }
+            closeCompleteEventModal();
+        };
+
+        window.deleteEvent = async function deleteEvent(id) {
+            if (!confirm("Are you sure you want to completely delete this event post?")) return;
+
+            if (useFirebase) {
+                try {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'events', id));
+                    showToast("Event removed from database.", "success");
+                } catch (e) {
+                    showToast("Failed to remove event.", "error");
+                }
+            } else {
+                window.state.events = window.state.events.filter(e => e.id !== id);
+                saveLocalData('risac_clean_events', window.state.events);
+                renderEvents();
+                showToast("Event deleted (Local Mode).", "success");
+            }
+        };
+
+
+        // 3. Quizzes Methods
+        window.saveQuiz = async function saveQuiz() {
+            const id = document.getElementById('quiz-id-input').value;
+            const title = document.getElementById('quiz-title-input').value.trim();
+            const deadline = document.getElementById('quiz-deadline-input').value.trim();
+            const points = document.getElementById('quiz-points-input').value.trim();
+            const desc = document.getElementById('quiz-desc-input').value.trim();
+            const image = document.getElementById('quiz-img-url').value.trim();
+            const formLink = document.getElementById('quiz-form-input').value.trim();
+
+            if (!title || !formLink) {
+                showToast("Title and Form link are mandatory.", "error");
+                return;
+            }
+
+            if (useFirebase) {
+                try {
+                    const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'quizzes');
+                    if (id) {
+                        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'quizzes', id), { title, deadline, points, desc, image, formLink });
+                    } else {
+                        await addDoc(colRef, { title, deadline, points, desc, image, formLink });
+                    }
+                    showToast("Quiz details saved!", "success");
+                } catch (e) {
+                    showToast("Database storage error.", "error");
+                }
+            } else {
+                if (id) {
+                    window.state.quizzes = window.state.quizzes.map(q => q.id === id ? { ...q, title, deadline, points, desc, image, formLink } : q);
+                } else {
+                    window.state.quizzes.push({ id: crypto.randomUUID(), title, deadline, points, desc, image, formLink });
+                }
+                saveLocalData('risac_clean_quizzes', window.state.quizzes);
+                renderQuizzes();
+                showToast("Quiz saved (Local Mode)!", "success");
+            }
+            closeAddQuizModal();
+        };
+
+        window.deleteQuiz = async function deleteQuiz(id) {
+            if (!confirm("Are you sure you want to delete this quiz post?")) return;
+
+            if (useFirebase) {
+                try {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'quizzes', id));
+                    showToast("Quiz removed from database.", "success");
+                } catch (e) {
+                    showToast("Failed deleting quiz.", "error");
+                }
+            } else {
+                window.state.quizzes = window.state.quizzes.filter(q => q.id !== id);
+                saveLocalData('risac_clean_quizzes', window.state.quizzes);
+                renderQuizzes();
+                showToast("Quiz deleted (Local Mode).", "success");
+            }
+        };
+
+
+        // 4. Achievements Methods
+        window.saveAchievement = async function saveAchievement() {
+            const id = document.getElementById('achievement-id-input').value;
+            const title = document.getElementById('ach-title-input').value.trim();
+            const date = document.getElementById('ach-date-input').value.trim();
+            const desc = document.getElementById('ach-desc-input').value.trim();
+            const image = document.getElementById('ach-img-url').value.trim();
+
+            if (!title || !date) {
+                showToast("Title and Date are mandatory.", "error");
+                return;
+            }
+
+            if (useFirebase) {
+                try {
+                    const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'achievements');
+                    if (id) {
+                        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'achievements', id), { title, date, desc, image });
+                    } else {
+                        await addDoc(colRef, { title, date, desc, image });
+                    }
+                    showToast("Award saved!", "success");
+                } catch (e) {
+                    showToast("Database transfer failed.", "error");
+                }
+            } else {
+                if (id) {
+                    window.state.achievements = window.state.achievements.map(a => a.id === id ? { ...a, title, date, desc, image } : a);
+                } else {
+                    window.state.achievements.push({ id: crypto.randomUUID(), title, date, desc, image });
+                }
+                saveLocalData('risac_clean_achievements', window.state.achievements);
+                renderAchievements();
+                showToast("Achievement saved (Local Mode)!", "success");
+            }
+            closeAddAchievementModal();
+        };
+
+        window.deleteAchievement = async function deleteAchievement(id) {
+            if (!confirm("Are you sure you want to remove this achievement?")) return;
+
+            if (useFirebase) {
+                try {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'achievements', id));
+                    showToast("Removed achievement record.", "success");
+                } catch (e) {
+                    showToast("Delete operation failed.", "error");
+                }
+            } else {
+                window.state.achievements = window.state.achievements.filter(a => a.id !== id);
+                saveLocalData('risac_clean_achievements', window.state.achievements);
+                renderAchievements();
+                showToast("Removed achievement (Local Mode).", "success");
+            }
+        };
+
+
+        // 5. EXCO Methods
+        window.saveExco = async function saveExco() {
+            const id = document.getElementById('exco-id-input').value;
+            const name = document.getElementById('exco-name-input').value.trim();
+            const role = document.getElementById('exco-role-input').value.trim();
+            const desc = document.getElementById('exco-desc-input').value.trim();
+            const image = document.getElementById('exco-img-url').value.trim();
+            const gradient = document.getElementById('exco-gradient-input').value;
+            const email = document.getElementById('exco-email-input').value.trim();
+            const github = document.getElementById('exco-github-input').value.trim();
+
+            if (!name || !role) {
+                showToast("Officer Name and Position are mandatory.", "error");
+                return;
+            }
+
+            if (useFirebase) {
+                try {
+                    const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'exco');
+                    if (id) {
+                        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'exco', id), { name, role, desc, image, gradient, email, github });
+                    } else {
+                        await addDoc(colRef, { name, role, desc, image, gradient, email, github });
+                    }
+                    showToast("EXCO Officer card saved!", "success");
+                } catch (e) {
+                    showToast("Failed to write to database.", "error");
+                }
+            } else {
+                if (id) {
+                    window.state.exco = window.state.exco.map(ex => ex.id === id ? { ...ex, name, role, desc, image, gradient, email, github } : ex);
+                } else {
+                    window.state.exco.push({ id: crypto.randomUUID(), name, role, desc, image, gradient, email, github });
+                }
+                saveLocalData('risac_clean_exco', window.state.exco);
+                renderExco();
+                showToast("EXCO Officer saved (Local Mode)!", "success");
+            }
+            closeAddExcoModal();
+        };
+
+        window.deleteExco = async function deleteExco(id) {
+            if (!confirm("Are you sure you want to remove this EXCO Officer?")) return;
+
+            if (useFirebase) {
+                try {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'exco', id));
+                    showToast("Officer deleted from database.", "success");
+                } catch (e) {
+                    showToast("Failed deleting document.", "error");
+                }
+            } else {
+                window.state.exco = window.state.exco.filter(ex => ex.id !== id);
+                saveLocalData('risac_clean_exco', window.state.exco);
+                renderExco();
+                showToast("EXCO Officer deleted (Local Mode).", "success");
+            }
+        };
+
+
+        // ================= POPULATE SAMPLE DATA BUTTON (Safe, Clean, Cosmic Sample Data) =================
+        window.loadSampleEntries = async function loadSampleEntries() {
+            const initialMembers = [
+                { name: "Ethan Chen", role: "President / Lead Astrophotographer", points: 180 },
+                { name: "Sarah Lim", role: "Vice-President (Science Projects)", points: 155 },
+                { name: "Darren Teo", role: "Stargazing Subcomm", points: 110 },
+                { name: "Jeanette Neo", role: "Active Member", points: 75 }
+            ];
+
+            const initialEvents = [
+                {
+                    title: "Live Stargazing: Saturn Ring Opposition",
+                    date: "Friday, August 14, 8:00 PM",
+                    location: "School Science Ridge Observetory",
+                    desc: "Set up our 200P telescope and zoom in directly onto the rings of Saturn! Bring along mobile astronomical mounts to capture high contrast raw planetary alignments.",
+                    image: "https://images.unsplash.com/photo-1506318137071-a8e063b4bec0?auto=format&fit=crop&w=800&q=80",
+                    formLink: "https://docs.google.com/forms/d/e/1FAIpQLSfD_L5h_M89yC0G0uVOnj17W3C0eorYyR7tW0vG4g6XFq951Q/viewform?embedded=true",
+                    completed: false,
+                    recap: "",
+                    gallery: []
+                },
+                {
+                    title: "DIY Model Rocketry Builder Session",
+                    date: "Wednesday, July 1, 4:00 PM",
+                    location: "Physics Lab 3B",
+                    desc: "Interactive session where our subcommittees assemble and test water pressure-based model rockets to observe wind resistances and trajectory formulas.",
+                    image: "https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?auto=format&fit=crop&w=800&q=80",
+                    formLink: "",
+                    completed: true,
+                    recap: "An incredible session! Over 15 students attended and assembled 6 model rockets. The winning group successfully reached a flight height of approximately 42 meters on the sports field.",
+                    gallery: [
+                        "https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?auto=format&fit=crop&w=400&q=80",
+                        "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=400&q=80"
+                    ]
+                }
+            ];
+
+            const initialQuizzes = [
+                {
+                    title: "Cosmic Distance Scales & Light Years Quiz",
+                    deadline: "Closes Sunday, Oct 18",
+                    points: "+15 Leaderboard Points",
+                    desc: "Test your calculations of parsecs, astronomical units (AU), and the relative expansion properties of standard candles.",
+                    image: "https://images.unsplash.com/photo-1464802686167-b939a6910659?auto=format&fit=crop&w=800&q=80",
+                    formLink: "https://docs.google.com/forms/d/e/1FAIpQLSfD_L5h_M89yC0G0uVOnj17W3C0eorYyR7tW0vG4g6XFq951Q/viewform?embedded=true"
+                }
+            ];
+
+            const initialAchievements = [
+                {
+                    title: "National Astronomy Olympiad Challenge Champion",
+                    date: "May 2026",
+                    desc: "The senior RISAC delegation scored 1st runner-up inside the national senior division category, with individual gold medallions awarded to our EXCO president.",
+                    image: "https://images.unsplash.com/photo-1496568818309-53d7c7753022?auto=format&fit=crop&w=800&q=80"
+                }
+            ];
+
+            const initialExco = [
+                {
+                    name: "Ethan Chen",
+                    role: "President",
+                    desc: "Focused on planetary DSO astrophotography and setting up deep-space tracker mounts.",
+                    gradient: "from-indigo-900 to-purple-900",
+                    email: "ethan@risac.edu",
+                    github: "https://github.com",
+                    image: ""
+                },
+                {
+                    name: "Sarah Lim",
+                    role: "Vice-President (Science Projects)",
+                    desc: "Directs weekly payloads, trajectory experiments, and cosmic ray sensing.",
+                    gradient: "from-purple-900 to-pink-900",
+                    email: "sarah@risac.edu",
+                    github: "",
+                    image: ""
+                },
+                {
+                    name: "Liam Patel",
+                    role: "Honorary Secretary",
+                    desc: "Manages session bookings, records observatory logs, and coordinates safety codes.",
+                    gradient: "from-blue-900 to-cyan-900",
+                    email: "liam@risac.edu",
+                    github: "",
+                    image: ""
+                }
+            ];
+
+            if (useFirebase) {
+                try {
+                    for (const m of initialMembers) {
+                        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'members'), m);
+                    }
+                    for (const e of initialEvents) {
+                        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'events'), e);
+                    }
+                    for (const q of initialQuizzes) {
+                        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'quizzes'), q);
+                    }
+                    for (const a of initialAchievements) {
+                        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'achievements'), a);
+                    }
+                    for (const ex of initialExco) {
+                        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'exco'), ex);
+                    }
+                    showToast("Populated Database with Sample Assets!", "success");
+                } catch (e) {
+                    showToast("Database sample write error.", "error");
+                }
+            } else {
+                // local fallback population
+                window.state.members = initialMembers.map(m => ({ id: crypto.randomUUID(), ...m })).sort((a,b)=>b.points-a.points);
+                window.state.events = initialEvents.map(e => ({ id: crypto.randomUUID(), ...e }));
+                window.state.quizzes = initialQuizzes.map(q => ({ id: crypto.randomUUID(), ...q }));
+                window.state.achievements = initialAchievements.map(a => ({ id: crypto.randomUUID(), ...a }));
+                window.state.exco = initialExco.map(ex => ({ id: crypto.randomUUID(), ...ex }));
+
+                saveLocalData('risac_clean_members', window.state.members);
+                saveLocalData('risac_clean_events', window.state.events);
+                saveLocalData('risac_clean_quizzes', window.state.quizzes);
+                saveLocalData('risac_clean_achievements', window.state.achievements);
+                saveLocalData('risac_clean_exco', window.state.exco);
+
+                renderAllUI();
+                showToast("Populated LocalStorage with Sample Assets!", "success");
+            }
+        };
+
+    </script>
+
+    <!-- ================================= NAVIGATION & DIALOG CONTROLLERS ================= -->
+    <script>
+        // SWITCH TAB MENU LOGIC
+        function switchTab(tabName) {
+            window.state.currentTab = tabName;
+
+            const pages = ['home', 'leaderboard', 'events', 'quizzes', 'achievements', 'exco'];
+            pages.forEach((p) => {
+                const element = document.getElementById(`page-${p}`);
+                const navBtn = document.getElementById(`nav-${p}`);
+
+                if (p === tabName) {
+                    element.classList.remove('hidden');
+                    if (navBtn) {
+                        navBtn.className = "px-3.5 py-2 rounded-lg text-sm font-medium transition-all text-indigo-400 bg-indigo-950/40";
+                    }
+                } else {
+                    element.classList.add('hidden');
+                    if (navBtn) {
+                        navBtn.className = "px-3.5 py-2 rounded-lg text-sm font-medium transition-all text-gray-300 hover:text-white hover:bg-gray-800/40";
+                    }
+                }
+            });
+
+            document.getElementById('mobile-menu').classList.add('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // DIALOG TOGGLES
+        function openAdminModal() {
+            document.getElementById('admin-modal').classList.remove('hidden');
+        }
+        function closeAdminModal() {
+            document.getElementById('admin-modal').classList.add('hidden');
+        }
+
+        // Members
+        function openAddMemberModal() {
+            document.getElementById('member-modal-title').textContent = "Add Club Member";
+            document.getElementById('member-id-input').value = "";
+            document.getElementById('member-name-input').value = "";
+            document.getElementById('member-role-input').value = "";
+            document.getElementById('member-points-input').value = 0;
+            document.getElementById('member-points-wrapper').classList.remove('hidden');
+            document.getElementById('add-member-modal').classList.remove('hidden');
+        }
+        function openEditMemberModal(id, name, role, points) {
+            document.getElementById('member-modal-title').textContent = "Edit Member Info";
+            document.getElementById('member-id-input').value = id;
+            document.getElementById('member-name-input').value = name;
+            document.getElementById('member-role-input').value = role;
+            document.getElementById('member-points-input').value = points;
+            document.getElementById('member-points-wrapper').classList.add('hidden'); // edited separately
+            document.getElementById('add-member-modal').classList.remove('hidden');
+        }
+        function closeAddMemberModal() {
+            document.getElementById('add-member-modal').classList.add('hidden');
+        }
+
+        function openEditPointsModal(id, name, currentPoints) {
+            document.getElementById('edit-points-member-id').value = id;
+            document.getElementById('edit-points-member-name').textContent = `Member: ${name}`;
+            document.getElementById('edit-points-score-input').value = currentPoints;
+            document.getElementById('edit-points-modal').classList.remove('hidden');
+        }
+        function closeEditPointsModal() {
+            document.getElementById('edit-points-modal').classList.add('hidden');
+        }
+        function adjustPointsInput(amount) {
+            const input = document.getElementById('edit-points-score-input');
+            input.value = (parseInt(input.value) || 0) + amount;
+        }
+
+        // Events
+        function openAddEventModal() {
+            document.getElementById('event-modal-title').textContent = "Post New Event / Session";
+            document.getElementById('event-id-input').value = "";
+            document.getElementById('event-title-input').value = "";
+            document.getElementById('event-date-input').value = "";
+            document.getElementById('event-location-input').value = "";
+            document.getElementById('event-desc-input').value = "";
+            document.getElementById('event-img-url').value = "";
+            document.getElementById('event-img-preview').src = "";
+            document.getElementById('event-img-preview').classList.add('hidden');
+            document.getElementById('event-form-input').value = "";
+            document.getElementById('add-event-modal').classList.remove('hidden');
+        }
+        function openEditEventModal(id, encodedData) {
+            const event = JSON.parse(decodeURIComponent(encodedData));
+            document.getElementById('event-modal-title').textContent = "Edit Event Details";
+            document.getElementById('event-id-input').value = id;
+            document.getElementById('event-title-input').value = event.title;
+            document.getElementById('event-date-input').value = event.date;
+            document.getElementById('event-location-input').value = event.location;
+            document.getElementById('event-desc-input').value = event.desc;
+            document.getElementById('event-img-url').value = event.image || "";
+            document.getElementById('event-form-input').value = event.formLink || "";
+            
+            const preview = document.getElementById('event-img-preview');
+            if (event.image) {
+                preview.src = event.image;
+                preview.classList.remove('hidden');
+            } else {
+                preview.classList.add('hidden');
+            }
+            document.getElementById('add-event-modal').classList.remove('hidden');
+        }
+        function closeAddEventModal() {
+            document.getElementById('add-event-modal').classList.add('hidden');
+        }
+
+        // Quizzes
+        function openAddQuizModal() {
+            document.getElementById('quiz-modal-title').textContent = "Post New Quiz Form";
+            document.getElementById('quiz-id-input').value = "";
+            document.getElementById('quiz-title-input').value = "";
+            document.getElementById('quiz-deadline-input').value = "";
+            document.getElementById('quiz-points-input').value = "";
+            document.getElementById('quiz-desc-input').value = "";
+            document.getElementById('quiz-img-url').value = "";
+            document.getElementById('quiz-img-preview').src = "";
+            document.getElementById('quiz-img-preview').classList.add('hidden');
+            document.getElementById('quiz-form-input').value = "";
+            document.getElementById('add-quiz-modal').classList.remove('hidden');
+        }
+        function openEditQuizModal(id, encodedData) {
+            const quiz = JSON.parse(decodeURIComponent(encodedData));
+            document.getElementById('quiz-modal-title').textContent = "Edit Quiz Details";
+            document.getElementById('quiz-id-input').value = id;
+            document.getElementById('quiz-title-input').value = quiz.title;
+            document.getElementById('quiz-deadline-input').value = quiz.deadline || "";
+            document.getElementById('quiz-points-input').value = quiz.points || "";
+            document.getElementById('quiz-desc-input').value = quiz.desc || "";
+            document.getElementById('quiz-img-url').value = quiz.image || "";
+            document.getElementById('quiz-form-input').value = quiz.formLink || "";
+
+            const preview = document.getElementById('quiz-img-preview');
+            if (quiz.image) {
+                preview.src = quiz.image;
+                preview.classList.remove('hidden');
+            } else {
+                preview.classList.add('hidden');
+            }
+            document.getElementById('add-quiz-modal').classList.remove('hidden');
+        }
+        function closeAddQuizModal() {
+            document.getElementById('add-quiz-modal').classList.add('hidden');
+        }
+
+        // Achievements
+        function openAddAchievementModal() {
+            document.getElementById('achievement-modal-title').textContent = "Record Club Achievement";
+            document.getElementById('achievement-id-input').value = "";
+            document.getElementById('ach-title-input').value = "";
+            document.getElementById('ach-date-input').value = "";
+            document.getElementById('ach-desc-input').value = "";
+            document.getElementById('ach-img-url').value = "";
+            document.getElementById('ach-img-preview').src = "";
+            document.getElementById('ach-img-preview').classList.add('hidden');
+            document.getElementById('add-achievement-modal').classList.remove('hidden');
+        }
+        function openEditAchievementModal(id, encodedData) {
+            const ach = JSON.parse(decodeURIComponent(encodedData));
+            document.getElementById('achievement-modal-title').textContent = "Edit Achievement";
+            document.getElementById('achievement-id-input').value = id;
+            document.getElementById('ach-title-input').value = ach.title;
+            document.getElementById('ach-date-input').value = ach.date;
+            document.getElementById('ach-desc-input').value = ach.desc;
+            document.getElementById('ach-img-url').value = ach.image || "";
+
+            const preview = document.getElementById('ach-img-preview');
+            if (ach.image) {
+                preview.src = ach.image;
+                preview.classList.remove('hidden');
+            } else {
+                preview.classList.add('hidden');
+            }
+            document.getElementById('add-achievement-modal').classList.remove('hidden');
+        }
+        function closeAddAchievementModal() {
+            document.getElementById('add-achievement-modal').classList.add('hidden');
+        }
+
+        // EXCO
+        function openAddExcoModal() {
+            document.getElementById('exco-modal-title').textContent = "Add EXCO Officer";
+            document.getElementById('exco-id-input').value = "";
+            document.getElementById('exco-name-input').value = "";
+            document.getElementById('exco-role-input').value = "";
+            document.getElementById('exco-desc-input').value = "";
+            document.getElementById('exco-img-url').value = "";
+            document.getElementById('exco-img-preview').src = "";
+            document.getElementById('exco-img-preview').classList.add('hidden');
+            document.getElementById('exco-gradient-input').selectedIndex = 0;
+            document.getElementById('exco-email-input').value = "";
+            document.getElementById('exco-github-input').value = "";
+            document.getElementById('add-exco-modal').classList.remove('hidden');
+        }
+        function openEditExcoModal(id, encodedData) {
+            const exco = JSON.parse(decodeURIComponent(encodedData));
+            document.getElementById('exco-modal-title').textContent = "Edit Officer Profile";
+            document.getElementById('exco-id-input').value = id;
+            document.getElementById('exco-name-input').value = exco.name;
+            document.getElementById('exco-role-input').value = exco.role;
+            document.getElementById('exco-desc-input').value = exco.desc;
+            document.getElementById('exco-img-url').value = exco.image || "";
+            document.getElementById('exco-gradient-input').value = exco.gradient || "from-indigo-900 to-purple-900";
+            document.getElementById('exco-email-input').value = exco.email || "";
+            document.getElementById('exco-github-input').value = exco.github || "";
+
+            const preview = document.getElementById('exco-img-preview');
+            if (exco.image) {
+                preview.src = exco.image;
+                preview.classList.remove('hidden');
+            } else {
+                preview.classList.add('hidden');
+            }
+            document.getElementById('add-exco-modal').classList.remove('hidden');
+        }
+        function closeAddExcoModal() {
+            document.getElementById('add-exco-modal').classList.add('hidden');
+        }
+
+        // Event Completion Gallery Modal
+        function openCompleteEventModal(id, title) {
+            document.getElementById('complete-event-id').value = id;
+            document.getElementById('complete-event-subtitle').textContent = `Event: ${title}`;
+            document.getElementById('complete-recap-input').value = "";
+            document.getElementById('gallery-preview-container').innerHTML = "";
+            // Reset global temp gallery elements array
+            temporaryGalleryBase64 = []; 
+            document.getElementById('complete-event-modal').classList.remove('hidden');
+        }
+        function closeCompleteEventModal() {
+            document.getElementById('complete-event-modal').classList.add('hidden');
+        }
+
+        // Toast Messages
+        function showToast(message, type = "success") {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let bgClass = "bg-gray-900 border-emerald-500/30 text-emerald-400";
+            let icon = '<i class="fa-solid fa-circle-check"></i>';
+            if (type === "error") {
+                bgClass = "bg-gray-900 border-red-500/30 text-red-400";
+                icon = '<i class="fa-solid fa-triangle-exclamation"></i>';
+            }
+
+            toast.className = `flex items-center space-x-3 px-4 py-3 rounded-xl border shadow-lg ${bgClass} transition-all duration-300 transform translate-y-2 opacity-0 pointer-events-auto`;
+            toast.innerHTML = `
+                <span>${icon}</span>
+                <span class="text-xs font-semibold">${message}</span>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        // Minimalist Dynamic Photo Lightbox Viewer
+        function openPhotoViewer(url) {
+            const bg = document.createElement('div');
+            bg.className = "fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm cursor-zoom-out animate-fade-in";
+            bg.innerHTML = `<img src="${url}" class="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl">`;
+            bg.onclick = () => bg.remove();
+            document.body.appendChild(bg);
+        }
+    </script>
+</body>
+</html>
