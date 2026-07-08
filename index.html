@@ -9,7 +9,7 @@
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght=400;600;800;900&family=Plus+Jakarta+Sans:wght=300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -105,7 +105,7 @@
     <!-- MAIN BODY CONTAINER -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
 
-        <!-- Temporary Admin Setup Helper inside main viewport (Shows only if logged in and empty) -->
+        <!-- Temporary Admin Setup Helper -->
         <div id="admin-setup-tip" class="hidden space-card p-4 rounded-xl border border-indigo-500/20 bg-indigo-950/25 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="flex items-center space-x-3 text-sm">
                 <i class="fa-solid fa-circle-info text-indigo-400 text-lg"></i>
@@ -194,13 +194,29 @@
         <section id="page-leaderboard" class="hidden space-y-6">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 class="orbitron text-3xl font-black tracking-wider text-white">Leaderboard Points</h2>
+                    <h2 class="orbitron text-3xl font-black tracking-wider text-white">Leaderboard & Groups</h2>
                     <p class="text-gray-400 text-sm mt-1">Accumulate points by actively participating in quizzes and club activities.</p>
                 </div>
-                <button id="admin-add-member-btn" onclick="openAddMemberModal()" class="hidden bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center space-x-2 shadow-lg shadow-indigo-600/20 transition">
-                    <i class="fa-solid fa-user-plus"></i>
-                    <span>Add New Member</span>
-                </button>
+                <div class="flex flex-wrap gap-2">
+                    <button id="admin-group-pts-btn" onclick="openGroupPointsModal()" class="hidden bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition">
+                        <i class="fa-solid fa-users"></i><span>Group Points</span>
+                    </button>
+                    <button id="admin-import-btn" onclick="openImportModal()" class="hidden bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition">
+                        <i class="fa-solid fa-file-import"></i><span>Import</span>
+                    </button>
+                    <button id="admin-reset-btn" onclick="openResetModal()" class="hidden bg-red-900/40 hover:bg-red-900/70 border border-red-500/30 text-red-300 px-3 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition">
+                        <i class="fa-solid fa-triangle-exclamation"></i><span>Reset</span>
+                    </button>
+                    <button id="admin-add-member-btn" onclick="openAddMemberModal()" class="hidden bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center space-x-2 shadow-lg shadow-indigo-600/20 transition">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span>Add New Member</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Group Standings Panel -->
+            <div id="group-standings-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 pb-2 border-b border-gray-800">
+                <!-- Javascript will render group standings dynamically here -->
             </div>
 
             <!-- Top 3 Podium Displays -->
@@ -218,6 +234,7 @@
                             <tr class="text-gray-500 text-xs uppercase tracking-wider border-b border-gray-850">
                                 <th class="p-4 pl-6">Rank</th>
                                 <th class="p-4">Name</th>
+                                <th class="p-4">Group</th>
                                 <th class="p-4">Role</th>
                                 <th class="p-4 text-right pr-6">Points</th>
                                 <th id="admin-table-header" class="hidden p-4 text-center">Actions</th>
@@ -353,6 +370,18 @@
                     <input type="text" id="member-name-input" placeholder="e.g. Jeanette Neo" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
                 </div>
                 <div class="space-y-1">
+                    <label class="block text-xs text-gray-400">Group Assignment</label>
+                    <select id="member-group-input" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        <option value="0">No Group (0)</option>
+                        <option value="1">Group 1</option>
+                        <option value="2">Group 2</option>
+                        <option value="3">Group 3</option>
+                        <option value="4">Group 4</option>
+                        <option value="5">Group 5</option>
+                        <option value="6">Group 6</option>
+                    </select>
+                </div>
+                <div class="space-y-1">
                     <label class="block text-xs text-gray-400">Role / Title</label>
                     <input type="text" id="member-role-input" placeholder="e.g. Sub-committee, Member" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
                 </div>
@@ -367,7 +396,82 @@
         </div>
     </div>
 
-    <!-- MODAL: ADJUST SCORE -->
+    <!-- MODAL: MANAGE GROUP POINTS -->
+    <div id="group-points-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+        <div class="space-card rounded-2xl max-w-sm w-full p-6 space-y-6 relative border border-gray-800">
+            <button onclick="closeGroupPointsModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div>
+                <h3 class="orbitron text-lg font-bold text-white">Award Group Points</h3>
+                <p class="text-xs text-gray-400 mt-1">These points stack with individual member points for total group score.</p>
+            </div>
+            <div class="space-y-3" id="group-points-inputs-container">
+                <!-- Inputs injected via JS -->
+            </div>
+            <button onclick="saveGroupPoints()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-lg text-sm font-semibold transition">
+                Save Group Adjustments
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL: IMPORT MEMBERS -->
+    <div id="import-members-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+        <div class="space-card rounded-2xl max-w-lg w-full p-6 space-y-4 relative border border-gray-800">
+            <button onclick="closeImportModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div>
+                <h3 class="orbitron text-lg font-bold text-white">Bulk Import Members</h3>
+                <p class="text-xs text-gray-400 mt-1">Format: Name | Points | Group Number | Role</p>
+            </div>
+            <div class="bg-gray-950/60 p-3 rounded-lg border border-gray-800 text-[10px] text-gray-500 space-y-1 font-mono">
+                <p>Larry | 67 | Group 1 | EXCO member</p>
+                <p>Roland | 69 | Group 6 | Assistant</p>
+                <p>Jeremy | 0 | No Group | No Role</p>
+            </div>
+            <textarea id="import-textarea" rows="6" placeholder="Paste your formatted list here..." class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"></textarea>
+            <button onclick="processImport()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-lg text-sm font-semibold transition">
+                Import Data List
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL: RESET TOOLS -->
+    <div id="reset-tools-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+        <div class="space-card rounded-2xl max-w-sm w-full p-6 space-y-6 relative border border-red-900/50">
+            <button onclick="closeResetModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div>
+                <h3 class="orbitron text-lg font-bold text-red-400 flex items-center"><i class="fa-solid fa-triangle-exclamation mr-2"></i> Danger Zone</h3>
+                <p class="text-xs text-gray-400 mt-1">These actions cannot be undone. Select carefully.</p>
+            </div>
+            <div class="space-y-2">
+                <label class="flex items-center space-x-3 p-3 bg-gray-900/50 rounded-lg border border-gray-800 cursor-pointer hover:bg-gray-800 transition">
+                    <input type="radio" name="reset_option" value="reset_points" class="form-radio text-red-500 bg-gray-900 border-gray-700">
+                    <span class="text-sm font-bold text-white">Full Reset Points</span>
+                </label>
+                <label class="flex items-center space-x-3 p-3 bg-gray-900/50 rounded-lg border border-gray-800 cursor-pointer hover:bg-gray-800 transition">
+                    <input type="radio" name="reset_option" value="reset_groups" class="form-radio text-red-500 bg-gray-900 border-gray-700">
+                    <span class="text-sm font-bold text-white">Full Reset Group Bonuses</span>
+                </label>
+                <label class="flex items-center space-x-3 p-3 bg-gray-900/50 rounded-lg border border-gray-800 cursor-pointer hover:bg-gray-800 transition">
+                    <input type="radio" name="reset_option" value="reset_leaderboard" class="form-radio text-red-500 bg-gray-900 border-gray-700">
+                    <span class="text-sm font-bold text-white">Full Reset Leaderboard (Delete all users)</span>
+                </label>
+                <label class="flex items-center space-x-3 p-3 bg-red-950/20 rounded-lg border border-red-900/40 cursor-pointer hover:bg-red-900/30 transition">
+                    <input type="radio" name="reset_option" value="reset_all" class="form-radio text-red-500 bg-gray-900 border-gray-700">
+                    <span class="text-sm font-bold text-red-400">Nuke Everything (Users + Points + Groups)</span>
+                </label>
+            </div>
+            <button onclick="executeReset()" class="w-full bg-red-700 hover:bg-red-600 text-white py-2.5 rounded-lg text-sm font-bold transition">
+                Execute Selected Reset
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL: ADJUST INDIVIDUAL SCORE -->
     <div id="edit-points-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
         <div class="space-card rounded-2xl max-w-sm w-full p-6 space-y-6 relative border border-gray-800">
             <button onclick="closeEditPointsModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
@@ -421,7 +525,6 @@
                     <label class="block text-xs text-gray-400">Description</label>
                     <textarea id="event-desc-input" rows="3" placeholder="Brief info about the event..." class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"></textarea>
                 </div>
-                <!-- Image selection -->
                 <div class="space-y-1.5">
                     <label class="block text-xs text-gray-400">Cover Banner Image</label>
                     <input type="file" id="event-file-input" accept="image/*" class="hidden" onchange="processSingleUpload(this, 'event-img-preview', 'event-img-url')">
@@ -468,7 +571,6 @@
                     <label class="block text-xs text-gray-400">Quiz Instructions</label>
                     <textarea id="quiz-desc-input" rows="3" placeholder="Briefly explain what topics are tested..." class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"></textarea>
                 </div>
-                <!-- Image Selection -->
                 <div class="space-y-1.5">
                     <label class="block text-xs text-gray-400">Cover Graphic Image</label>
                     <input type="file" id="quiz-file-input" accept="image/*" class="hidden" onchange="processSingleUpload(this, 'quiz-img-preview', 'quiz-img-url')">
@@ -550,7 +652,6 @@
                     <label class="block text-xs text-gray-400">Introduction Bio</label>
                     <textarea id="exco-desc-input" rows="3" placeholder="Briefly describe background and passion..." class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"></textarea>
                 </div>
-                <!-- Photo Style Selection / Image upload -->
                 <div class="space-y-1.5">
                     <label class="block text-xs text-gray-400">Profile Photo</label>
                     <input type="file" id="exco-file-input" accept="image/*" class="hidden" onchange="processSingleUpload(this, 'exco-img-preview', 'exco-img-url')">
@@ -625,14 +726,13 @@
     <!-- NOTIFICATION ALERTS BOX (Replaces browser alerts) -->
     <div id="toast-container" class="fixed bottom-6 right-6 z-50 space-y-2 pointer-events-none"></div>
 
-
     <!-- ================================= FIREBASE & APP CONTROLLERS ================= -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js';
         import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js';
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, collection, addDoc, query, onSnapshot } from 'https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js';
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, collection, addDoc, query, onSnapshot, getDocs, writeBatch } from 'https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js';
 
-        // ================= CONFIGURATION FOR CLIENT TO SETUP =================
+        // ================= CONFIGURATION =================
         const firebaseConfig = {
             apiKey: "AIzaSyDVq1w8dhI6_y4kq1r-kKNANjI0qWF2Z9Y",
             authDomain: "risac-website.firebaseapp.com",
@@ -642,6 +742,7 @@
             appId: "1:324559403093:web:245373e188e518e7607cdc",
             measurementId: "G-DG8YBRZDV1",
         };
+
 
         let useFirebase = false;
         let db, auth;
@@ -655,7 +756,7 @@
                 useFirebase = true;
                 console.log("Firebase initialized!");
             } catch (err) {
-                console.error("Firebase Initialization failed, falling back to clean local storage:", err);
+                console.error("Firebase Initialization failed, falling back to local storage:", err);
             }
         }
 
@@ -667,19 +768,18 @@
             events: [],
             quizzes: [],
             achievements: [],
-            exco: []
+            exco: [],
+            groupBonuses: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 }
         };
 
-        // Arrays to hold uploaded gallery Base64 strings inside the complete-modal
         let temporaryGalleryBase64 = [];
 
-        // Initialize App UI and setup listeners on Load
         window.addEventListener('DOMContentLoaded', async () => {
             if (useFirebase) {
                 try {
                     await signInAnonymously(auth);
                 } catch (error) {
-                    showToast("Visitor read active. Modifications disabled without admin authentication.", "error");
+                    showToast("Visitor read active. Modifications disabled without admin.", "error");
                 }
                 onAuthStateChanged(auth, (user) => {
                     loadRealtimeDatabase();
@@ -690,11 +790,10 @@
             }
         });
 
-        // ================= REALTIME DISPATCHERS (Firestore Compliance Rules 1, 2, & 3) =================
+        // ================= FIREBASE SYNC =================
         function loadRealtimeDatabase() {
             if (!useFirebase) return;
 
-            // 1. Members
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'members'), (snapshot) => {
                 let loaded = [];
                 snapshot.forEach((d) => loaded.push({ id: d.id, ...d.data() }));
@@ -704,7 +803,15 @@
                 togglePrinstineHelper();
             }, (err) => console.error(err));
 
-            // 2. Events
+            onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'groups', 'groupBonuses'), (docSnap) => {
+                if (docSnap.exists()) {
+                    window.state.groupBonuses = docSnap.data();
+                } else {
+                    window.state.groupBonuses = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+                }
+                renderLeaderboard();
+            }, (err) => console.error(err));
+
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'events'), (snapshot) => {
                 let loaded = [];
                 snapshot.forEach((d) => loaded.push({ id: d.id, ...d.data() }));
@@ -713,7 +820,6 @@
                 togglePrinstineHelper();
             }, (err) => console.error(err));
 
-            // 3. Quizzes
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'quizzes'), (snapshot) => {
                 let loaded = [];
                 snapshot.forEach((d) => loaded.push({ id: d.id, ...d.data() }));
@@ -722,7 +828,6 @@
                 togglePrinstineHelper();
             }, (err) => console.error(err));
 
-            // 4. Achievements
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'achievements'), (snapshot) => {
                 let loaded = [];
                 snapshot.forEach((d) => loaded.push({ id: d.id, ...d.data() }));
@@ -731,7 +836,6 @@
                 togglePrinstineHelper();
             }, (err) => console.error(err));
 
-            // 5. EXCO
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'exco'), (snapshot) => {
                 let loaded = [];
                 snapshot.forEach((d) => loaded.push({ id: d.id, ...d.data() }));
@@ -741,13 +845,14 @@
             }, (err) => console.error(err));
         }
 
-        // clean slate localstorage loader
+        // ================= LOCAL STORAGE SYNC =================
         function loadCleanLocalStorage() {
             window.state.members = JSON.parse(localStorage.getItem('risac_clean_members') || '[]');
             window.state.events = JSON.parse(localStorage.getItem('risac_clean_events') || '[]');
             window.state.quizzes = JSON.parse(localStorage.getItem('risac_clean_quizzes') || '[]');
             window.state.achievements = JSON.parse(localStorage.getItem('risac_clean_achievements') || '[]');
             window.state.exco = JSON.parse(localStorage.getItem('risac_clean_exco') || '[]');
+            window.state.groupBonuses = JSON.parse(localStorage.getItem('risac_clean_groups') || '{"1":0,"2":0,"3":0,"4":0,"5":0,"6":0}');
             togglePrinstineHelper();
         }
 
@@ -770,7 +875,7 @@
             }
         }
 
-        // ================= RENDERING AND GRAPHICS LOGIC =================
+        // ================= RENDER GRAPHICS =================
         window.renderAllUI = function renderAllUI() {
             renderLeaderboard();
             renderEvents();
@@ -780,22 +885,50 @@
             togglePrinstineHelper();
         };
 
-        // Render Leaderboard
         window.renderLeaderboard = function renderLeaderboard() {
             const podium = document.getElementById('podium-container');
             const tbody = document.getElementById('leaderboard-tbody');
             const mCount = document.getElementById('member-count');
+            const groupStandings = document.getElementById('group-standings-container');
             
             podium.innerHTML = '';
             tbody.innerHTML = '';
+            groupStandings.innerHTML = '';
 
             const list = window.state.members;
             mCount.textContent = `${list.length} members`;
 
+            // Calculate Group Points
+            const groupScores = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0};
+            list.forEach(m => {
+                if(m.group && m.group !== "0") {
+                    groupScores[m.group] += (m.points || 0);
+                }
+            });
+            for(let i=1; i<=6; i++) {
+                groupScores[i] += (parseInt(window.state.groupBonuses[i]) || 0);
+            }
+
+            // Render Groups Panel
+            const sortedGroups = Object.keys(groupScores).map(k => ({group: k, score: groupScores[k]})).sort((a,b) => b.score - a.score);
+            sortedGroups.forEach((g, idx) => {
+                let badgeStyle = "bg-gray-900 border-gray-800 text-gray-400";
+                if(idx === 0) badgeStyle = "bg-yellow-950/40 border-yellow-500/50 text-yellow-400";
+                else if(idx === 1) badgeStyle = "bg-slate-800/40 border-slate-400/50 text-slate-300";
+                else if(idx === 2) badgeStyle = "bg-amber-950/40 border-amber-700/50 text-amber-500";
+
+                groupStandings.innerHTML += `
+                    <div class="flex flex-col items-center justify-center p-3 rounded-xl border ${badgeStyle}">
+                        <span class="text-[10px] uppercase font-bold tracking-widest opacity-80">Group ${g.group}</span>
+                        <span class="text-xl orbitron font-black mt-1">${g.score}</span>
+                    </div>
+                `;
+            });
+
             if (list.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="5" class="p-8 text-center text-gray-500">
+                        <td colspan="6" class="p-8 text-center text-gray-500">
                             <i class="fa-solid fa-users-viewfinder text-3xl text-gray-700 mb-2 block"></i>
                             No members added to the leaderboard yet.
                         </td>
@@ -834,6 +967,7 @@
                         <div class="mt-4">
                             <h4 class="font-extrabold text-lg text-white group-hover:text-indigo-400 transition">${user.name}</h4>
                             <p class="text-xs text-gray-400">${user.role}</p>
+                            ${user.group && user.group !== "0" ? `<p class="text-[10px] text-indigo-400 font-bold uppercase tracking-widest mt-1">Group ${user.group}</p>` : ''}
                         </div>
                         <div class="mt-4 inline-block bg-indigo-950/40 border border-indigo-900/30 px-4 py-1.5 rounded-full">
                             <span class="orbitron font-extrabold text-indigo-400">${user.points}</span>
@@ -841,7 +975,7 @@
                         </div>
                         ${window.state.isAdmin ? `
                             <div class="mt-4 flex justify-center space-x-2 border-t border-gray-800/80 pt-4">
-                                <button onclick="openEditMemberModal('${user.id}', '${user.name}', '${user.role}', ${user.points})" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 rounded text-xs font-semibold text-white transition"><i class="fa-solid fa-user-pen"></i></button>
+                                <button onclick="openEditMemberModal('${user.id}', '${user.name}', '${user.group || "0"}', '${user.role}', ${user.points})" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 rounded text-xs font-semibold text-white transition"><i class="fa-solid fa-user-pen"></i></button>
                                 <button onclick="openEditPointsModal('${user.id}', '${user.name}', ${user.points})" class="px-2.5 py-1 bg-teal-600 hover:bg-teal-500 rounded text-xs font-semibold text-white transition"><i class="fa-solid fa-plus-minus"></i></button>
                                 <button onclick="deleteMember('${user.id}')" class="px-2.5 py-1 bg-red-900/30 hover:bg-red-900/60 text-red-400 rounded text-xs transition"><i class="fa-solid fa-trash-can"></i></button>
                             </div>
@@ -856,12 +990,13 @@
                     <tr class="hover:bg-gray-900/20 transition duration-150">
                         <td class="p-4 pl-6 font-bold text-gray-500">${rank}</td>
                         <td class="p-4 font-bold text-white">${user.name}</td>
+                        <td class="p-4 text-xs font-bold text-indigo-400">${user.group && user.group !== "0" ? `G${user.group}` : '-'}</td>
                         <td class="p-4 text-xs text-gray-400">${user.role}</td>
                         <td class="p-4 text-right pr-6 font-bold text-indigo-400 orbitron">${user.points} <span class="text-[9px] text-gray-500">PTS</span></td>
                         ${window.state.isAdmin ? `
                             <td class="p-4 text-center">
                                 <div class="flex justify-center items-center space-x-2">
-                                    <button onclick="openEditMemberModal('${user.id}', '${user.name}', '${user.role}', ${user.points})" class="bg-indigo-950/80 border border-indigo-900/40 text-indigo-300 text-xs px-2.5 py-1 rounded-lg hover:bg-indigo-900">
+                                    <button onclick="openEditMemberModal('${user.id}', '${user.name}', '${user.group || "0"}', '${user.role}', ${user.points})" class="bg-indigo-950/80 border border-indigo-900/40 text-indigo-300 text-xs px-2.5 py-1 rounded-lg hover:bg-indigo-900">
                                         <i class="fa-solid fa-user-pen"></i>
                                     </button>
                                     <button onclick="openEditPointsModal('${user.id}', '${user.name}', ${user.points})" class="bg-teal-950/80 border border-teal-900/40 text-teal-300 text-xs px-2.5 py-1 rounded-lg hover:bg-teal-900">
@@ -878,12 +1013,10 @@
             });
         };
 
-        // Render Events
         window.renderEvents = function renderEvents() {
             const listDiv = document.getElementById('events-list');
             listDiv.innerHTML = '';
 
-            // Sort logic: active (completed: false) on top, completed on bottom
             const events = [...window.state.events].sort((a, b) => {
                 const aVal = a.completed ? 1 : 0;
                 const bVal = b.completed ? 1 : 0;
@@ -936,13 +1069,11 @@
                         <div class="p-6 space-y-6">
                             <p class="text-gray-400 text-sm leading-relaxed whitespace-pre-line">${event.desc}</p>
                             
-                            <!-- Complete recap view if completed -->
                             ${event.completed ? `
                                 <div class="space-y-4 border-t border-gray-850 pt-6">
                                     <h4 class="text-xs font-bold uppercase tracking-widest orbitron text-emerald-400 flex items-center"><i class="fa-solid fa-star-of-david mr-2"></i>Event Recap Highlights</h4>
                                     <p class="text-sm text-gray-300 italic whitespace-pre-line bg-gray-950/50 p-4 rounded-xl border border-gray-900">${event.recap || 'Highlights loading...'}</p>
                                     
-                                    <!-- Photo Gallery grid -->
                                     ${event.gallery && event.gallery.length > 0 ? `
                                         <div class="space-y-2">
                                             <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-2">Event Gallery Grid (${event.gallery.length} Images)</span>
@@ -958,7 +1089,6 @@
                                 </div>
                             ` : ''}
 
-                            <!-- Embedded forms if active -->
                             ${showEmbed ? `
                                 <div class="border border-indigo-950/50 rounded-xl overflow-hidden bg-gray-950/60 p-4 space-y-4">
                                     <div class="flex justify-between items-center flex-wrap gap-2">
@@ -998,14 +1128,17 @@
             });
         };
 
-        // Render Quizzes
         window.renderQuizzes = function renderQuizzes() {
             const listDiv = document.getElementById('quizzes-list');
             listDiv.innerHTML = '';
 
-            const list = window.state.quizzes;
+            const quizzes = [...window.state.quizzes].sort((a, b) => {
+                const aVal = a.completed ? 1 : 0;
+                const bVal = b.completed ? 1 : 0;
+                return aVal - bVal;
+            });
 
-            if (list.length === 0) {
+            if (quizzes.length === 0) {
                 listDiv.innerHTML = `
                     <div class="space-card rounded-2xl p-12 text-center text-gray-400 border border-dashed border-purple-950/50">
                         <i class="fa-solid fa-feather text-4xl text-gray-750 mb-3 block"></i>
@@ -1015,18 +1148,26 @@
                 return;
             }
 
-            list.forEach((quiz) => {
+            quizzes.forEach((quiz) => {
                 const formLink = quiz.formLink ? quiz.formLink.trim() : '';
+                const showEmbed = formLink && !quiz.completed;
                 const coverImage = quiz.image || '';
 
+                let cardStyle = "border-purple-950/20";
+                let badge = `<span class="px-2.5 py-1 text-[10px] font-bold tracking-widest orbitron bg-purple-500/10 text-purple-400 border border-purple-500/20 uppercase rounded-full">Interactive Quiz</span>`;
+                if (quiz.completed) {
+                    cardStyle = "border-gray-900 bg-gray-950/50 opacity-80 filter grayscale-[0.6]";
+                    badge = `<span class="px-2.5 py-1 text-[10px] font-bold tracking-widest orbitron bg-gray-800 text-gray-400 border border-gray-700 uppercase rounded-full"><i class="fa-solid fa-lock mr-1"></i>Quiz Archived & Closed</span>`;
+                }
+
                 listDiv.innerHTML += `
-                    <div class="space-card rounded-2xl overflow-hidden border border-purple-950/20 flex flex-col transition duration-300">
+                    <div class="space-card rounded-2xl overflow-hidden border ${cardStyle} flex flex-col transition duration-300">
                         ${coverImage ? `<img src="${coverImage}" class="w-full h-48 sm:h-64 object-cover filter brightness-[0.85]">` : ''}
                         
                         <div class="p-6 border-b border-gray-850 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                             <div class="space-y-1">
                                 <div class="flex items-center space-x-2">
-                                    <span class="px-2.5 py-1 text-[10px] font-bold tracking-widest orbitron bg-purple-500/10 text-purple-400 border border-purple-500/20 uppercase rounded-full">Interactive Quiz</span>
+                                    ${badge}
                                 </div>
                                 <h3 class="text-2xl font-black text-white">${quiz.title}</h3>
                             </div>
@@ -1043,7 +1184,7 @@
                         <div class="p-6 space-y-6">
                             <p class="text-gray-400 text-sm leading-relaxed whitespace-pre-line">${quiz.desc}</p>
                             
-                            ${formLink ? `
+                            ${showEmbed ? `
                                 <div class="border border-purple-950/30 rounded-xl overflow-hidden bg-gray-950/60 p-4 space-y-4">
                                     <div class="flex justify-between items-center flex-wrap gap-2">
                                         <div class="flex items-center space-x-2">
@@ -1063,7 +1204,12 @@
                         </div>
 
                         ${window.state.isAdmin ? `
-                            <div class="p-4 bg-gray-950/60 border-t border-gray-850 flex justify-end gap-2">
+                            <div class="p-4 bg-gray-950/60 border-t border-gray-850 flex justify-end gap-2 flex-wrap">
+                                ${!quiz.completed ? `
+                                    <button onclick="archiveQuiz('${quiz.id}')" class="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-white text-xs font-semibold rounded-lg transition">
+                                        <i class="fa-solid fa-box-archive mr-1"></i> Close & Archive Quiz
+                                    </button>
+                                ` : ''}
                                 <button onclick="openEditQuizModal('${quiz.id}', '${encodeURIComponent(JSON.stringify(quiz))}')" class="px-3 py-1.5 bg-purple-900/30 hover:bg-purple-900/60 text-purple-400 text-xs font-semibold rounded-lg transition">
                                     <i class="fa-solid fa-pen-to-square mr-1"></i> Edit
                                 </button>
@@ -1077,7 +1223,6 @@
             });
         };
 
-        // Render Achievements
         window.renderAchievements = function renderAchievements() {
             const listDiv = document.getElementById('achievements-list');
             listDiv.innerHTML = '';
@@ -1128,7 +1273,6 @@
             });
         };
 
-        // Render EXCO Team Cards
         window.renderExco = function renderExco() {
             const listDiv = document.getElementById('exco-team-list');
             listDiv.innerHTML = '';
@@ -1187,7 +1331,8 @@
             });
         };
 
-        // ================= CLIENT COMPRESSION SYSTEM (No Storage Bucket limits) =================
+
+        // ================= IMAGE COMPRESSION =================
         window.compressAndEncodeImage = function compressAndEncodeImage(file, callback) {
             const reader = new FileReader();
             reader.onload = function (e) {
@@ -1196,7 +1341,7 @@
                     const canvas = document.createElement('canvas');
                     let width = img.width;
                     let height = img.height;
-                    const max_size = 500; // Keep image boundaries compact to maintain small Firestore payloads
+                    const max_size = 500;
                     
                     if (width > height) {
                         if (width > max_size) {
@@ -1213,8 +1358,6 @@
                     canvas.height = height;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
-                    
-                    // Compress JPEG slightly to drastically reduce Firestore text size
                     const base64 = canvas.toDataURL('image/jpeg', 0.6); 
                     callback(base64);
                 };
@@ -1223,7 +1366,6 @@
             reader.readAsDataURL(file);
         };
 
-        // Single Image Upload Helper
         window.processSingleUpload = function processSingleUpload(input, previewId, urlFieldId) {
             if (input.files && input.files[0]) {
                 compressAndEncodeImage(input.files[0], (base64) => {
@@ -1235,16 +1377,12 @@
             }
         };
 
-        // Multiple Image Upload Helper for completed event gallery
         window.processMultipleGalleryUploads = function processMultipleGalleryUploads(input) {
             const container = document.getElementById('gallery-preview-container');
-            
             if (input.files) {
                 Array.from(input.files).forEach((file) => {
                     compressAndEncodeImage(file, (base64) => {
                         temporaryGalleryBase64.push(base64);
-                        
-                        // Render miniature preview square inside modal
                         const wrap = document.createElement('div');
                         wrap.className = "aspect-square relative rounded-lg border border-gray-800 overflow-hidden group";
                         wrap.innerHTML = `
@@ -1264,7 +1402,6 @@
             btn.parentElement.remove();
         };
 
-
         // ================= ADMIN CREDENTIAL CONTROL =================
         window.handleAdminAuth = function handleAdminAuth() {
             const pass = document.getElementById('admin-pass-input').value;
@@ -1273,7 +1410,6 @@
                 window.state.isAdmin = true;
                 showToast("Admin access unlocked successfully!", "success");
                 
-                // Switch forms
                 document.getElementById('admin-login-fields').classList.add('hidden');
                 document.getElementById('admin-logged-in-profile').classList.remove('hidden');
                 
@@ -1285,8 +1421,10 @@
                 document.getElementById('admin-badge').className = "flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-indigo-950 border border-indigo-500/30 text-indigo-400 shadow-lg shadow-indigo-500/10";
                 document.getElementById('admin-status-text').textContent = "Admin Mode On";
 
-                // Dynamic creator additions
                 document.getElementById('admin-add-member-btn').classList.remove('hidden');
+                document.getElementById('admin-group-pts-btn').classList.remove('hidden');
+                document.getElementById('admin-import-btn').classList.remove('hidden');
+                document.getElementById('admin-reset-btn').classList.remove('hidden');
                 document.getElementById('admin-add-event-btn').classList.remove('hidden');
                 document.getElementById('admin-add-quiz-btn').classList.remove('hidden');
                 document.getElementById('admin-add-achievement-btn').classList.remove('hidden');
@@ -1317,6 +1455,9 @@
             document.getElementById('admin-status-text').textContent = "Admin Access";
 
             document.getElementById('admin-add-member-btn').classList.add('hidden');
+            document.getElementById('admin-group-pts-btn').classList.add('hidden');
+            document.getElementById('admin-import-btn').classList.add('hidden');
+            document.getElementById('admin-reset-btn').classList.add('hidden');
             document.getElementById('admin-add-event-btn').classList.add('hidden');
             document.getElementById('admin-add-quiz-btn').classList.add('hidden');
             document.getElementById('admin-add-achievement-btn').classList.add('hidden');
@@ -1327,43 +1468,38 @@
             closeAdminModal();
         };
 
+        // ================= DATABASE READ/WRITE METHODS =================
 
-        // ================= DATABASE READ & WRITE SYSTEM (Firebase Compatible) =================
-
-        // 1. Leaderboard Methods
+        // Member
         window.saveMember = async function saveMember() {
             const id = document.getElementById('member-id-input').value;
             const name = document.getElementById('member-name-input').value.trim();
+            const group = document.getElementById('member-group-input').value;
             const role = document.getElementById('member-role-input').value.trim() || 'Member';
             const points = parseInt(document.getElementById('member-points-input').value) || 0;
 
-            if (!name) {
-                showToast("Name field is required.", "error");
-                return;
-            }
+            if (!name) { showToast("Name is required.", "error"); return; }
 
             if (useFirebase) {
                 try {
                     const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'members');
                     if (id) {
-                        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'members', id), { name, role });
+                        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'members', id), { name, group, role });
                     } else {
-                        await addDoc(colRef, { name, role, points });
+                        await addDoc(colRef, { name, group, role, points });
                     }
-                    showToast("Leaderboard member saved!", "success");
-                } catch (e) {
-                    showToast("Database write error.", "error");
-                }
+                    showToast("Member saved!", "success");
+                } catch (e) { showToast("Database write error.", "error"); }
             } else {
                 if (id) {
-                    window.state.members = window.state.members.map(u => u.id === id ? { ...u, name, role } : u);
+                    window.state.members = window.state.members.map(u => u.id === id ? { ...u, name, group, role } : u);
                 } else {
-                    window.state.members.push({ id: crypto.randomUUID(), name, role, points });
+                    window.state.members.push({ id: crypto.randomUUID(), name, group, role, points });
                 }
                 window.state.members.sort((a,b) => b.points - a.points);
                 saveLocalData('risac_clean_members', window.state.members);
                 renderLeaderboard();
-                showToast("Leaderboard member saved (Local Mode)!", "success");
+                showToast("Member saved (Local Mode)!", "success");
             }
             closeAddMemberModal();
         };
@@ -1375,10 +1511,8 @@
             if (useFirebase) {
                 try {
                     await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'members', memberId), { points: newPoints });
-                    showToast("Points database score updated!", "success");
-                } catch (e) {
-                    showToast("Failed to modify score.", "error");
-                }
+                    showToast("Score updated!", "success");
+                } catch (e) { showToast("Failed to modify score.", "error"); }
             } else {
                 window.state.members = window.state.members.map(u => u.id === memberId ? { ...u, points: newPoints } : u).sort((a,b) => b.points - a.points);
                 saveLocalData('risac_clean_members', window.state.members);
@@ -1389,15 +1523,10 @@
         };
 
         window.deleteMember = async function deleteMember(id) {
-            if (!confirm("Are you sure you want to remove this member from the leaderboard?")) return;
-
+            if (!confirm("Remove this member from the leaderboard?")) return;
             if (useFirebase) {
-                try {
-                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'members', id));
-                    showToast("Deleted member from database.", "success");
-                } catch (e) {
-                    showToast("Could not remove document.", "error");
-                }
+                try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'members', id)); showToast("Deleted member.", "success"); } 
+                catch (e) { showToast("Could not remove document.", "error"); }
             } else {
                 window.state.members = window.state.members.filter(u => u.id !== id);
                 saveLocalData('risac_clean_members', window.state.members);
@@ -1406,8 +1535,137 @@
             }
         };
 
+        // Group Points
+        window.saveGroupPoints = async function saveGroupPoints() {
+            const newBonuses = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0};
+            for(let i=1; i<=6; i++) {
+                newBonuses[i] = parseInt(document.getElementById(`group-pts-input-${i}`).value) || 0;
+            }
 
-        // 2. Events Methods
+            if(useFirebase) {
+                try {
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'groups', 'groupBonuses'), newBonuses);
+                    showToast("Group points updated!", "success");
+                } catch(e) { showToast("Failed writing group data.", "error"); }
+            } else {
+                window.state.groupBonuses = newBonuses;
+                saveLocalData('risac_clean_groups', window.state.groupBonuses);
+                renderLeaderboard();
+                showToast("Group points updated (Local Mode)!", "success");
+            }
+            closeGroupPointsModal();
+        };
+
+        // Bulk Import
+        window.processImport = async function processImport() {
+            const text = document.getElementById('import-textarea').value;
+            if (!text.trim()) { showToast("Please paste some data.", "error"); return; }
+            const lines = text.split('\n');
+            let importedCount = 0;
+
+            const parsedMembers = [];
+            for (let line of lines) {
+                if (!line.trim()) continue;
+                let parts = line.split('|').map(s => s.trim());
+                if (parts.length < 2) continue; // need at least Name and Points
+                
+                let name = parts[0];
+                let points = parseInt(parts[1]) || 0;
+                
+                let groupStr = parts[2] ? parts[2].toLowerCase() : "";
+                let group = "0";
+                if (groupStr.includes("1")) group = "1";
+                else if (groupStr.includes("2")) group = "2";
+                else if (groupStr.includes("3")) group = "3";
+                else if (groupStr.includes("4")) group = "4";
+                else if (groupStr.includes("5")) group = "5";
+                else if (groupStr.includes("6")) group = "6";
+                
+                let role = parts[3];
+                if (role && role.toLowerCase() === "no role") role = "";
+                else if (!role) role = "Member";
+
+                parsedMembers.push({ name, points, group, role });
+            }
+
+            if (parsedMembers.length === 0) { showToast("No valid rows found to import.", "error"); return; }
+
+            if (useFirebase) {
+                try {
+                    // Write iteratively to bypass needing batch complex logic if array is huge
+                    for (let m of parsedMembers) {
+                        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'members'), m);
+                        importedCount++;
+                    }
+                    showToast(`Successfully imported ${importedCount} members to database!`, "success");
+                } catch(e) {
+                    showToast("Error occurred during import.", "error");
+                }
+            } else {
+                parsedMembers.forEach(m => {
+                    window.state.members.push({ id: crypto.randomUUID(), ...m });
+                    importedCount++;
+                });
+                window.state.members.sort((a,b) => b.points - a.points);
+                saveLocalData('risac_clean_members', window.state.members);
+                renderLeaderboard();
+                showToast(`Imported ${importedCount} members (Local Mode)!`, "success");
+            }
+            document.getElementById('import-textarea').value = "";
+            closeImportModal();
+        };
+
+        // Reset Options
+        window.executeReset = async function executeReset() {
+            const selected = document.querySelector('input[name="reset_option"]:checked');
+            if (!selected) { showToast("Please select a reset option.", "error"); return; }
+            
+            const opt = selected.value;
+            if (!confirm(`Are you absolutely sure you want to execute: ${opt}? This cannot be undone.`)) return;
+
+            if (useFirebase) {
+                try {
+                    const membersRef = collection(db, 'artifacts', appId, 'public', 'data', 'members');
+                    const membersSnap = await getDocs(membersRef);
+                    
+                    // Simple serial updates/deletes to avoid complicated batch size limits
+                    if (opt === "reset_points" || opt === "reset_all") {
+                        for (let d of membersSnap.docs) {
+                            await updateDoc(d.ref, { points: 0 });
+                        }
+                    }
+                    if (opt === "reset_leaderboard" || opt === "reset_all") {
+                        for (let d of membersSnap.docs) {
+                            await deleteDoc(d.ref);
+                        }
+                    }
+                    if (opt === "reset_groups" || opt === "reset_all") {
+                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'groups', 'groupBonuses'), {1:0, 2:0, 3:0, 4:0, 5:0, 6:0});
+                    }
+                    showToast("Reset completed successfully on Database.", "success");
+                } catch(e) {
+                    showToast("Failed to process database reset.", "error");
+                }
+            } else {
+                if (opt === "reset_points" || opt === "reset_all") {
+                    window.state.members.forEach(m => m.points = 0);
+                }
+                if (opt === "reset_groups" || opt === "reset_all") {
+                    window.state.groupBonuses = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0};
+                    saveLocalData('risac_clean_groups', window.state.groupBonuses);
+                }
+                if (opt === "reset_leaderboard" || opt === "reset_all") {
+                    window.state.members = [];
+                }
+                saveLocalData('risac_clean_members', window.state.members);
+                renderLeaderboard();
+                showToast("Reset completed (Local Mode).", "success");
+            }
+            closeResetModal();
+        };
+
+
+        // Events
         window.saveEvent = async function saveEvent() {
             const id = document.getElementById('event-id-input').value;
             const title = document.getElementById('event-title-input').value.trim();
@@ -1416,30 +1674,17 @@
             const desc = document.getElementById('event-desc-input').value.trim();
             const image = document.getElementById('event-img-url').value.trim();
             const formLink = document.getElementById('event-form-input').value.trim();
-
-            if (!title || !date || !location) {
-                showToast("Title, Date, and Location are mandatory.", "error");
-                return;
-            }
-
+            if (!title || !date || !location) { showToast("Title, Date, and Location are mandatory.", "error"); return; }
             if (useFirebase) {
                 try {
                     const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'events');
-                    if (id) {
-                        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'events', id), { title, date, location, desc, image, formLink });
-                    } else {
-                        await addDoc(colRef, { title, date, location, desc, image, formLink, completed: false, recap: '', gallery: [] });
-                    }
-                    showToast("Event saved to database!", "success");
-                } catch (e) {
-                    showToast("Failed to save event.", "error");
-                }
+                    if (id) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'events', id), { title, date, location, desc, image, formLink });
+                    else await addDoc(colRef, { title, date, location, desc, image, formLink, completed: false, recap: '', gallery: [] });
+                    showToast("Event saved!", "success");
+                } catch (e) { showToast("Failed to save event.", "error"); }
             } else {
-                if (id) {
-                    window.state.events = window.state.events.map(e => e.id === id ? { ...e, title, date, location, desc, image, formLink } : e);
-                } else {
-                    window.state.events.push({ id: crypto.randomUUID(), title, date, location, desc, image, formLink, completed: false, recap: '', gallery: [] });
-                }
+                if (id) window.state.events = window.state.events.map(e => e.id === id ? { ...e, title, date, location, desc, image, formLink } : e);
+                else window.state.events.push({ id: crypto.randomUUID(), title, date, location, desc, image, formLink, completed: false, recap: '', gallery: [] });
                 saveLocalData('risac_clean_events', window.state.events);
                 renderEvents();
                 showToast("Event saved (Local Mode)!", "success");
@@ -1450,23 +1695,12 @@
         window.submitCompletedEvent = async function submitCompletedEvent() {
             const id = document.getElementById('complete-event-id').value;
             const recap = document.getElementById('complete-recap-input').value.trim();
-
-            if (!recap) {
-                showToast("Please provide written highlights/recap.", "error");
-                return;
-            }
-
+            if (!recap) { showToast("Please provide written highlights.", "error"); return; }
             if (useFirebase) {
                 try {
-                    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'events', id), {
-                        completed: true,
-                        recap: recap,
-                        gallery: temporaryGalleryBase64
-                    });
+                    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'events', id), { completed: true, recap: recap, gallery: temporaryGalleryBase64 });
                     showToast("Event marked completed & gallery saved!", "success");
-                } catch (e) {
-                    showToast("Database transfer error.", "error");
-                }
+                } catch (e) { showToast("Database transfer error.", "error"); }
             } else {
                 window.state.events = window.state.events.map(e => e.id === id ? { ...e, completed: true, recap, gallery: temporaryGalleryBase64 } : e);
                 saveLocalData('risac_clean_events', window.state.events);
@@ -1478,14 +1712,9 @@
 
         window.deleteEvent = async function deleteEvent(id) {
             if (!confirm("Are you sure you want to completely delete this event post?")) return;
-
             if (useFirebase) {
-                try {
-                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'events', id));
-                    showToast("Event removed from database.", "success");
-                } catch (e) {
-                    showToast("Failed to remove event.", "error");
-                }
+                try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'events', id)); showToast("Event removed.", "success"); } 
+                catch (e) { showToast("Failed to remove event.", "error"); }
             } else {
                 window.state.events = window.state.events.filter(e => e.id !== id);
                 saveLocalData('risac_clean_events', window.state.events);
@@ -1494,8 +1723,7 @@
             }
         };
 
-
-        // 3. Quizzes Methods
+        // Quizzes
         window.saveQuiz = async function saveQuiz() {
             const id = document.getElementById('quiz-id-input').value;
             const title = document.getElementById('quiz-title-input').value.trim();
@@ -1504,30 +1732,17 @@
             const desc = document.getElementById('quiz-desc-input').value.trim();
             const image = document.getElementById('quiz-img-url').value.trim();
             const formLink = document.getElementById('quiz-form-input').value.trim();
-
-            if (!title || !formLink) {
-                showToast("Title and Form link are mandatory.", "error");
-                return;
-            }
-
+            if (!title || !formLink) { showToast("Title and Form link are mandatory.", "error"); return; }
             if (useFirebase) {
                 try {
                     const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'quizzes');
-                    if (id) {
-                        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'quizzes', id), { title, deadline, points, desc, image, formLink });
-                    } else {
-                        await addDoc(colRef, { title, deadline, points, desc, image, formLink });
-                    }
+                    if (id) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'quizzes', id), { title, deadline, points, desc, image, formLink });
+                    else await addDoc(colRef, { title, deadline, points, desc, image, formLink, completed: false });
                     showToast("Quiz details saved!", "success");
-                } catch (e) {
-                    showToast("Database storage error.", "error");
-                }
+                } catch (e) { showToast("Database storage error.", "error"); }
             } else {
-                if (id) {
-                    window.state.quizzes = window.state.quizzes.map(q => q.id === id ? { ...q, title, deadline, points, desc, image, formLink } : q);
-                } else {
-                    window.state.quizzes.push({ id: crypto.randomUUID(), title, deadline, points, desc, image, formLink });
-                }
+                if (id) window.state.quizzes = window.state.quizzes.map(q => q.id === id ? { ...q, title, deadline, points, desc, image, formLink } : q);
+                else window.state.quizzes.push({ id: crypto.randomUUID(), title, deadline, points, desc, image, formLink, completed: false });
                 saveLocalData('risac_clean_quizzes', window.state.quizzes);
                 renderQuizzes();
                 showToast("Quiz saved (Local Mode)!", "success");
@@ -1535,16 +1750,26 @@
             closeAddQuizModal();
         };
 
-        window.deleteQuiz = async function deleteQuiz(id) {
-            if (!confirm("Are you sure you want to delete this quiz post?")) return;
-
+        window.archiveQuiz = async function archiveQuiz(id) {
+            if (!confirm("Mark this quiz as completed and archive it? Members will no longer see the form on the page.")) return;
             if (useFirebase) {
                 try {
-                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'quizzes', id));
-                    showToast("Quiz removed from database.", "success");
-                } catch (e) {
-                    showToast("Failed deleting quiz.", "error");
-                }
+                    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'quizzes', id), { completed: true });
+                    showToast("Quiz archived successfully!", "success");
+                } catch (e) { showToast("Database error archiving quiz.", "error"); }
+            } else {
+                window.state.quizzes = window.state.quizzes.map(q => q.id === id ? { ...q, completed: true } : q);
+                saveLocalData('risac_clean_quizzes', window.state.quizzes);
+                renderQuizzes();
+                showToast("Quiz archived (Local Mode)!", "success");
+            }
+        };
+
+        window.deleteQuiz = async function deleteQuiz(id) {
+            if (!confirm("Are you sure you want to delete this quiz post?")) return;
+            if (useFirebase) {
+                try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'quizzes', id)); showToast("Quiz removed.", "success"); } 
+                catch (e) { showToast("Failed deleting quiz.", "error"); }
             } else {
                 window.state.quizzes = window.state.quizzes.filter(q => q.id !== id);
                 saveLocalData('risac_clean_quizzes', window.state.quizzes);
@@ -1553,38 +1778,24 @@
             }
         };
 
-
-        // 4. Achievements Methods
+        // Achievements
         window.saveAchievement = async function saveAchievement() {
             const id = document.getElementById('achievement-id-input').value;
             const title = document.getElementById('ach-title-input').value.trim();
             const date = document.getElementById('ach-date-input').value.trim();
             const desc = document.getElementById('ach-desc-input').value.trim();
             const image = document.getElementById('ach-img-url').value.trim();
-
-            if (!title || !date) {
-                showToast("Title and Date are mandatory.", "error");
-                return;
-            }
-
+            if (!title || !date) { showToast("Title and Date are mandatory.", "error"); return; }
             if (useFirebase) {
                 try {
                     const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'achievements');
-                    if (id) {
-                        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'achievements', id), { title, date, desc, image });
-                    } else {
-                        await addDoc(colRef, { title, date, desc, image });
-                    }
+                    if (id) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'achievements', id), { title, date, desc, image });
+                    else await addDoc(colRef, { title, date, desc, image });
                     showToast("Award saved!", "success");
-                } catch (e) {
-                    showToast("Database transfer failed.", "error");
-                }
+                } catch (e) { showToast("Database transfer failed.", "error"); }
             } else {
-                if (id) {
-                    window.state.achievements = window.state.achievements.map(a => a.id === id ? { ...a, title, date, desc, image } : a);
-                } else {
-                    window.state.achievements.push({ id: crypto.randomUUID(), title, date, desc, image });
-                }
+                if (id) window.state.achievements = window.state.achievements.map(a => a.id === id ? { ...a, title, date, desc, image } : a);
+                else window.state.achievements.push({ id: crypto.randomUUID(), title, date, desc, image });
                 saveLocalData('risac_clean_achievements', window.state.achievements);
                 renderAchievements();
                 showToast("Achievement saved (Local Mode)!", "success");
@@ -1594,14 +1805,9 @@
 
         window.deleteAchievement = async function deleteAchievement(id) {
             if (!confirm("Are you sure you want to remove this achievement?")) return;
-
             if (useFirebase) {
-                try {
-                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'achievements', id));
-                    showToast("Removed achievement record.", "success");
-                } catch (e) {
-                    showToast("Delete operation failed.", "error");
-                }
+                try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'achievements', id)); showToast("Removed achievement record.", "success"); } 
+                catch (e) { showToast("Delete operation failed.", "error"); }
             } else {
                 window.state.achievements = window.state.achievements.filter(a => a.id !== id);
                 saveLocalData('risac_clean_achievements', window.state.achievements);
@@ -1610,8 +1816,7 @@
             }
         };
 
-
-        // 5. EXCO Methods
+        // EXCO
         window.saveExco = async function saveExco() {
             const id = document.getElementById('exco-id-input').value;
             const name = document.getElementById('exco-name-input').value.trim();
@@ -1621,47 +1826,29 @@
             const gradient = document.getElementById('exco-gradient-input').value;
             const email = document.getElementById('exco-email-input').value.trim();
             const github = document.getElementById('exco-github-input').value.trim();
-
-            if (!name || !role) {
-                showToast("Officer Name and Position are mandatory.", "error");
-                return;
-            }
-
+            if (!name || !role) { showToast("Officer Name and Position are mandatory.", "error"); return; }
             if (useFirebase) {
                 try {
                     const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'exco');
-                    if (id) {
-                        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'exco', id), { name, role, desc, image, gradient, email, github });
-                    } else {
-                        await addDoc(colRef, { name, role, desc, image, gradient, email, github });
-                    }
-                    showToast("EXCO Officer card saved!", "success");
-                } catch (e) {
-                    showToast("Failed to write to database.", "error");
-                }
+                    if (id) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'exco', id), { name, role, desc, image, gradient, email, github });
+                    else await addDoc(colRef, { name, role, desc, image, gradient, email, github });
+                    showToast("EXCO card saved!", "success");
+                } catch (e) { showToast("Failed to write to database.", "error"); }
             } else {
-                if (id) {
-                    window.state.exco = window.state.exco.map(ex => ex.id === id ? { ...ex, name, role, desc, image, gradient, email, github } : ex);
-                } else {
-                    window.state.exco.push({ id: crypto.randomUUID(), name, role, desc, image, gradient, email, github });
-                }
+                if (id) window.state.exco = window.state.exco.map(ex => ex.id === id ? { ...ex, name, role, desc, image, gradient, email, github } : ex);
+                else window.state.exco.push({ id: crypto.randomUUID(), name, role, desc, image, gradient, email, github });
                 saveLocalData('risac_clean_exco', window.state.exco);
                 renderExco();
-                showToast("EXCO Officer saved (Local Mode)!", "success");
+                showToast("EXCO saved (Local Mode)!", "success");
             }
             closeAddExcoModal();
         };
 
         window.deleteExco = async function deleteExco(id) {
             if (!confirm("Are you sure you want to remove this EXCO Officer?")) return;
-
             if (useFirebase) {
-                try {
-                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'exco', id));
-                    showToast("Officer deleted from database.", "success");
-                } catch (e) {
-                    showToast("Failed deleting document.", "error");
-                }
+                try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'exco', id)); showToast("Officer deleted.", "success"); } 
+                catch (e) { showToast("Failed deleting document.", "error"); }
             } else {
                 window.state.exco = window.state.exco.filter(ex => ex.id !== id);
                 saveLocalData('risac_clean_exco', window.state.exco);
@@ -1670,14 +1857,13 @@
             }
         };
 
-
-        // ================= POPULATE SAMPLE DATA BUTTON (Safe, Clean, Cosmic Sample Data) =================
+        // Populate Sample Data
         window.loadSampleEntries = async function loadSampleEntries() {
             const initialMembers = [
-                { name: "Ethan Chen", role: "President / Lead Astrophotographer", points: 180 },
-                { name: "Sarah Lim", role: "Vice-President (Science Projects)", points: 155 },
-                { name: "Darren Teo", role: "Stargazing Subcomm", points: 110 },
-                { name: "Jeanette Neo", role: "Active Member", points: 75 }
+                { name: "Ethan Chen", group: "1", role: "President / Astrophotographer", points: 180 },
+                { name: "Sarah Lim", group: "2", role: "VP (Science Projects)", points: 155 },
+                { name: "Darren Teo", group: "6", role: "Stargazing Subcomm", points: 110 },
+                { name: "Jeanette Neo", group: "0", role: "Active Member", points: 75 }
             ];
 
             const initialEvents = [
@@ -1685,21 +1871,18 @@
                     title: "Live Stargazing: Saturn Ring Opposition",
                     date: "Friday, August 14, 8:00 PM",
                     location: "School Science Ridge Observetory",
-                    desc: "Set up our 200P telescope and zoom in directly onto the rings of Saturn! Bring along mobile astronomical mounts to capture high contrast raw planetary alignments.",
+                    desc: "Set up our 200P telescope and zoom in directly onto the rings of Saturn! Bring along mobile astronomical mounts.",
                     image: "https://images.unsplash.com/photo-1506318137071-a8e063b4bec0?auto=format&fit=crop&w=800&q=80",
                     formLink: "https://docs.google.com/forms/d/e/1FAIpQLSfD_L5h_M89yC0G0uVOnj17W3C0eorYyR7tW0vG4g6XFq951Q/viewform?embedded=true",
-                    completed: false,
-                    recap: "",
-                    gallery: []
+                    completed: false, recap: "", gallery: []
                 },
                 {
-                    title: "DIY Model Rocketry Builder Session",
+                    title: "DIY Model Rocketry Session",
                     date: "Wednesday, July 1, 4:00 PM",
                     location: "Physics Lab 3B",
-                    desc: "Interactive session where our subcommittees assemble and test water pressure-based model rockets to observe wind resistances and trajectory formulas.",
+                    desc: "Assemble and test water pressure-based model rockets to observe wind resistances and trajectory formulas.",
                     image: "https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?auto=format&fit=crop&w=800&q=80",
-                    formLink: "",
-                    completed: true,
+                    formLink: "", completed: true,
                     recap: "An incredible session! Over 15 students attended and assembled 6 model rockets. The winning group successfully reached a flight height of approximately 42 meters on the sports field.",
                     gallery: [
                         "https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?auto=format&fit=crop&w=400&q=80",
@@ -1715,7 +1898,8 @@
                     points: "+15 Leaderboard Points",
                     desc: "Test your calculations of parsecs, astronomical units (AU), and the relative expansion properties of standard candles.",
                     image: "https://images.unsplash.com/photo-1464802686167-b939a6910659?auto=format&fit=crop&w=800&q=80",
-                    formLink: "https://docs.google.com/forms/d/e/1FAIpQLSfD_L5h_M89yC0G0uVOnj17W3C0eorYyR7tW0vG4g6XFq951Q/viewform?embedded=true"
+                    formLink: "https://docs.google.com/forms/d/e/1FAIpQLSfD_L5h_M89yC0G0uVOnj17W3C0eorYyR7tW0vG4g6XFq951Q/viewform?embedded=true",
+                    completed: false
                 }
             ];
 
@@ -1730,68 +1914,39 @@
 
             const initialExco = [
                 {
-                    name: "Ethan Chen",
-                    role: "President",
-                    desc: "Focused on planetary DSO astrophotography and setting up deep-space tracker mounts.",
-                    gradient: "from-indigo-900 to-purple-900",
-                    email: "ethan@risac.edu",
-                    github: "https://github.com",
-                    image: ""
+                    name: "Ethan Chen", role: "President", desc: "Focused on planetary DSO astrophotography and setting up deep-space tracker mounts.",
+                    gradient: "from-indigo-900 to-purple-900", email: "ethan@risac.edu", github: "https://github.com", image: ""
                 },
                 {
-                    name: "Sarah Lim",
-                    role: "Vice-President (Science Projects)",
-                    desc: "Directs weekly payloads, trajectory experiments, and cosmic ray sensing.",
-                    gradient: "from-purple-900 to-pink-900",
-                    email: "sarah@risac.edu",
-                    github: "",
-                    image: ""
-                },
-                {
-                    name: "Liam Patel",
-                    role: "Honorary Secretary",
-                    desc: "Manages session bookings, records observatory logs, and coordinates safety codes.",
-                    gradient: "from-blue-900 to-cyan-900",
-                    email: "liam@risac.edu",
-                    github: "",
-                    image: ""
+                    name: "Sarah Lim", role: "Vice-President (Science Projects)", desc: "Directs weekly payloads, trajectory experiments, and cosmic ray sensing.",
+                    gradient: "from-purple-900 to-pink-900", email: "sarah@risac.edu", github: "", image: ""
                 }
             ];
 
             if (useFirebase) {
                 try {
-                    for (const m of initialMembers) {
-                        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'members'), m);
-                    }
-                    for (const e of initialEvents) {
-                        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'events'), e);
-                    }
-                    for (const q of initialQuizzes) {
-                        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'quizzes'), q);
-                    }
-                    for (const a of initialAchievements) {
-                        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'achievements'), a);
-                    }
-                    for (const ex of initialExco) {
-                        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'exco'), ex);
-                    }
+                    for (const m of initialMembers) await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'members'), m);
+                    for (const e of initialEvents) await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'events'), e);
+                    for (const q of initialQuizzes) await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'quizzes'), q);
+                    for (const a of initialAchievements) await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'achievements'), a);
+                    for (const ex of initialExco) await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'exco'), ex);
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'groups', 'groupBonuses'), {1:0, 2:50, 3:0, 4:0, 5:0, 6:0});
                     showToast("Populated Database with Sample Assets!", "success");
-                } catch (e) {
-                    showToast("Database sample write error.", "error");
-                }
+                } catch (e) { showToast("Database sample write error.", "error"); }
             } else {
-                // local fallback population
                 window.state.members = initialMembers.map(m => ({ id: crypto.randomUUID(), ...m })).sort((a,b)=>b.points-a.points);
                 window.state.events = initialEvents.map(e => ({ id: crypto.randomUUID(), ...e }));
                 window.state.quizzes = initialQuizzes.map(q => ({ id: crypto.randomUUID(), ...q }));
                 window.state.achievements = initialAchievements.map(a => ({ id: crypto.randomUUID(), ...a }));
                 window.state.exco = initialExco.map(ex => ({ id: crypto.randomUUID(), ...ex }));
+                window.state.groupBonuses = {1:0, 2:50, 3:0, 4:0, 5:0, 6:0};
 
                 saveLocalData('risac_clean_members', window.state.members);
                 saveLocalData('risac_clean_events', window.state.events);
                 saveLocalData('risac_clean_quizzes', window.state.quizzes);
                 saveLocalData('risac_clean_achievements', window.state.achievements);
                 saveLocalData('risac_clean_exco', window.state.exco);
+                saveLocalData('risac_clean_groups', window.state.groupBonuses);
 
                 renderAllUI();
                 showToast("Populated LocalStorage with Sample Assets!", "success");
@@ -1800,69 +1955,55 @@
 
     </script>
 
-    <!-- ================================= NAVIGATION & DIALOG CONTROLLERS ================= -->
+    <!-- ================================= DIALOG & UTILITY SCRIPTS ================= -->
     <script>
-        // SWITCH TAB MENU LOGIC
         function switchTab(tabName) {
             window.state.currentTab = tabName;
-
             const pages = ['home', 'leaderboard', 'events', 'quizzes', 'achievements', 'exco'];
             pages.forEach((p) => {
                 const element = document.getElementById(`page-${p}`);
                 const navBtn = document.getElementById(`nav-${p}`);
-
                 if (p === tabName) {
                     element.classList.remove('hidden');
-                    if (navBtn) {
-                        navBtn.className = "px-3.5 py-2 rounded-lg text-sm font-medium transition-all text-indigo-400 bg-indigo-950/40";
-                    }
+                    if (navBtn) navBtn.className = "px-3.5 py-2 rounded-lg text-sm font-medium transition-all text-indigo-400 bg-indigo-950/40";
                 } else {
                     element.classList.add('hidden');
-                    if (navBtn) {
-                        navBtn.className = "px-3.5 py-2 rounded-lg text-sm font-medium transition-all text-gray-300 hover:text-white hover:bg-gray-800/40";
-                    }
+                    if (navBtn) navBtn.className = "px-3.5 py-2 rounded-lg text-sm font-medium transition-all text-gray-300 hover:text-white hover:bg-gray-800/40";
                 }
             });
-
             document.getElementById('mobile-menu').classList.add('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function toggleMobileMenu() {
-            const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('hidden');
+            document.getElementById('mobile-menu').classList.toggle('hidden');
         }
 
-        // DIALOG TOGGLES
-        function openAdminModal() {
-            document.getElementById('admin-modal').classList.remove('hidden');
-        }
-        function closeAdminModal() {
-            document.getElementById('admin-modal').classList.add('hidden');
-        }
+        function openAdminModal() { document.getElementById('admin-modal').classList.remove('hidden'); }
+        function closeAdminModal() { document.getElementById('admin-modal').classList.add('hidden'); }
 
-        // Members
+        // Member
         function openAddMemberModal() {
             document.getElementById('member-modal-title').textContent = "Add Club Member";
             document.getElementById('member-id-input').value = "";
             document.getElementById('member-name-input').value = "";
+            document.getElementById('member-group-input').value = "0";
             document.getElementById('member-role-input').value = "";
             document.getElementById('member-points-input').value = 0;
             document.getElementById('member-points-wrapper').classList.remove('hidden');
             document.getElementById('add-member-modal').classList.remove('hidden');
         }
-        function openEditMemberModal(id, name, role, points) {
+        function openEditMemberModal(id, name, group, role, points) {
             document.getElementById('member-modal-title').textContent = "Edit Member Info";
             document.getElementById('member-id-input').value = id;
             document.getElementById('member-name-input').value = name;
+            document.getElementById('member-group-input').value = group;
             document.getElementById('member-role-input').value = role;
             document.getElementById('member-points-input').value = points;
-            document.getElementById('member-points-wrapper').classList.add('hidden'); // edited separately
+            document.getElementById('member-points-wrapper').classList.add('hidden'); 
             document.getElementById('add-member-modal').classList.remove('hidden');
         }
-        function closeAddMemberModal() {
-            document.getElementById('add-member-modal').classList.add('hidden');
-        }
+        function closeAddMemberModal() { document.getElementById('add-member-modal').classList.add('hidden'); }
 
         function openEditPointsModal(id, name, currentPoints) {
             document.getElementById('edit-points-member-id').value = id;
@@ -1870,13 +2011,43 @@
             document.getElementById('edit-points-score-input').value = currentPoints;
             document.getElementById('edit-points-modal').classList.remove('hidden');
         }
-        function closeEditPointsModal() {
-            document.getElementById('edit-points-modal').classList.add('hidden');
-        }
+        function closeEditPointsModal() { document.getElementById('edit-points-modal').classList.add('hidden'); }
         function adjustPointsInput(amount) {
             const input = document.getElementById('edit-points-score-input');
             input.value = (parseInt(input.value) || 0) + amount;
         }
+
+        // Group Points
+        function openGroupPointsModal() {
+            const container = document.getElementById('group-points-inputs-container');
+            container.innerHTML = "";
+            for(let i=1; i<=6; i++) {
+                const currentPts = window.state.groupBonuses[i] || 0;
+                container.innerHTML += `
+                    <div class="flex items-center justify-between p-2 bg-gray-900/50 border border-gray-800 rounded-lg">
+                        <span class="text-sm font-bold text-gray-300">Group ${i} Bonus:</span>
+                        <input type="number" id="group-pts-input-${i}" value="${currentPts}" class="w-20 bg-gray-950 border border-gray-800 rounded px-2 py-1 text-center text-sm text-white focus:outline-none focus:border-indigo-500 font-mono">
+                    </div>
+                `;
+            }
+            document.getElementById('group-points-modal').classList.remove('hidden');
+        }
+        function closeGroupPointsModal() { document.getElementById('group-points-modal').classList.add('hidden'); }
+
+        // Import
+        function openImportModal() {
+            document.getElementById('import-textarea').value = "";
+            document.getElementById('import-members-modal').classList.remove('hidden');
+        }
+        function closeImportModal() { document.getElementById('import-members-modal').classList.add('hidden'); }
+
+        // Reset
+        function openResetModal() {
+            const options = document.getElementsByName('reset_option');
+            options.forEach(opt => opt.checked = false);
+            document.getElementById('reset-tools-modal').classList.remove('hidden');
+        }
+        function closeResetModal() { document.getElementById('reset-tools-modal').classList.add('hidden'); }
 
         // Events
         function openAddEventModal() {
@@ -1902,19 +2073,22 @@
             document.getElementById('event-desc-input').value = event.desc;
             document.getElementById('event-img-url').value = event.image || "";
             document.getElementById('event-form-input').value = event.formLink || "";
-            
             const preview = document.getElementById('event-img-preview');
-            if (event.image) {
-                preview.src = event.image;
-                preview.classList.remove('hidden');
-            } else {
-                preview.classList.add('hidden');
-            }
+            if (event.image) { preview.src = event.image; preview.classList.remove('hidden'); } 
+            else { preview.classList.add('hidden'); }
             document.getElementById('add-event-modal').classList.remove('hidden');
         }
-        function closeAddEventModal() {
-            document.getElementById('add-event-modal').classList.add('hidden');
+        function closeAddEventModal() { document.getElementById('add-event-modal').classList.add('hidden'); }
+
+        function openCompleteEventModal(id, title) {
+            document.getElementById('complete-event-id').value = id;
+            document.getElementById('complete-event-subtitle').textContent = `Event: ${title}`;
+            document.getElementById('complete-recap-input').value = "";
+            document.getElementById('gallery-preview-container').innerHTML = "";
+            temporaryGalleryBase64 = []; 
+            document.getElementById('complete-event-modal').classList.remove('hidden');
         }
+        function closeCompleteEventModal() { document.getElementById('complete-event-modal').classList.add('hidden'); }
 
         // Quizzes
         function openAddQuizModal() {
@@ -1940,19 +2114,12 @@
             document.getElementById('quiz-desc-input').value = quiz.desc || "";
             document.getElementById('quiz-img-url').value = quiz.image || "";
             document.getElementById('quiz-form-input').value = quiz.formLink || "";
-
             const preview = document.getElementById('quiz-img-preview');
-            if (quiz.image) {
-                preview.src = quiz.image;
-                preview.classList.remove('hidden');
-            } else {
-                preview.classList.add('hidden');
-            }
+            if (quiz.image) { preview.src = quiz.image; preview.classList.remove('hidden'); } 
+            else { preview.classList.add('hidden'); }
             document.getElementById('add-quiz-modal').classList.remove('hidden');
         }
-        function closeAddQuizModal() {
-            document.getElementById('add-quiz-modal').classList.add('hidden');
-        }
+        function closeAddQuizModal() { document.getElementById('add-quiz-modal').classList.add('hidden'); }
 
         // Achievements
         function openAddAchievementModal() {
@@ -1974,19 +2141,12 @@
             document.getElementById('ach-date-input').value = ach.date;
             document.getElementById('ach-desc-input').value = ach.desc;
             document.getElementById('ach-img-url').value = ach.image || "";
-
             const preview = document.getElementById('ach-img-preview');
-            if (ach.image) {
-                preview.src = ach.image;
-                preview.classList.remove('hidden');
-            } else {
-                preview.classList.add('hidden');
-            }
+            if (ach.image) { preview.src = ach.image; preview.classList.remove('hidden'); } 
+            else { preview.classList.add('hidden'); }
             document.getElementById('add-achievement-modal').classList.remove('hidden');
         }
-        function closeAddAchievementModal() {
-            document.getElementById('add-achievement-modal').classList.add('hidden');
-        }
+        function closeAddAchievementModal() { document.getElementById('add-achievement-modal').classList.add('hidden'); }
 
         // EXCO
         function openAddExcoModal() {
@@ -2014,67 +2174,32 @@
             document.getElementById('exco-gradient-input').value = exco.gradient || "from-indigo-900 to-purple-900";
             document.getElementById('exco-email-input').value = exco.email || "";
             document.getElementById('exco-github-input').value = exco.github || "";
-
             const preview = document.getElementById('exco-img-preview');
-            if (exco.image) {
-                preview.src = exco.image;
-                preview.classList.remove('hidden');
-            } else {
-                preview.classList.add('hidden');
-            }
+            if (exco.image) { preview.src = exco.image; preview.classList.remove('hidden'); } 
+            else { preview.classList.add('hidden'); }
             document.getElementById('add-exco-modal').classList.remove('hidden');
         }
-        function closeAddExcoModal() {
-            document.getElementById('add-exco-modal').classList.add('hidden');
-        }
+        function closeAddExcoModal() { document.getElementById('add-exco-modal').classList.add('hidden'); }
 
-        // Event Completion Gallery Modal
-        function openCompleteEventModal(id, title) {
-            document.getElementById('complete-event-id').value = id;
-            document.getElementById('complete-event-subtitle').textContent = `Event: ${title}`;
-            document.getElementById('complete-recap-input').value = "";
-            document.getElementById('gallery-preview-container').innerHTML = "";
-            // Reset global temp gallery elements array
-            temporaryGalleryBase64 = []; 
-            document.getElementById('complete-event-modal').classList.remove('hidden');
-        }
-        function closeCompleteEventModal() {
-            document.getElementById('complete-event-modal').classList.add('hidden');
-        }
-
-        // Toast Messages
         function showToast(message, type = "success") {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            
             let bgClass = "bg-gray-900 border-emerald-500/30 text-emerald-400";
             let icon = '<i class="fa-solid fa-circle-check"></i>';
             if (type === "error") {
                 bgClass = "bg-gray-900 border-red-500/30 text-red-400";
                 icon = '<i class="fa-solid fa-triangle-exclamation"></i>';
             }
-
             toast.className = `flex items-center space-x-3 px-4 py-3 rounded-xl border shadow-lg ${bgClass} transition-all duration-300 transform translate-y-2 opacity-0 pointer-events-auto`;
-            toast.innerHTML = `
-                <span>${icon}</span>
-                <span class="text-xs font-semibold">${message}</span>
-            `;
-
+            toast.innerHTML = `<span>${icon}</span><span class="text-xs font-semibold">${message}</span>`;
             container.appendChild(toast);
-
-            setTimeout(() => {
-                toast.classList.remove('translate-y-2', 'opacity-0');
-            }, 10);
-
+            setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 10);
             setTimeout(() => {
                 toast.classList.add('opacity-0', 'translate-y-2');
-                setTimeout(() => {
-                    toast.remove();
-                }, 300);
+                setTimeout(() => { toast.remove(); }, 300);
             }, 3000);
         }
 
-        // Minimalist Dynamic Photo Lightbox Viewer
         function openPhotoViewer(url) {
             const bg = document.createElement('div');
             bg.className = "fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm cursor-zoom-out animate-fade-in";
